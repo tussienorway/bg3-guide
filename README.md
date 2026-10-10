@@ -4,7 +4,7 @@ Statisk, selvstendig side – ingen eksterne ressurser. Den ferdige siden kan pu
 
 - `index.html` – selve guiden (forsiden for GitHub Pages / Netlify)
 - `bg3-nybegynnerguide.html` – identisk kopi
-- `build/` – kilde: `content_base.py` (opprinnelig innhold + Dark Urge-tekster), `content.py` (utvidelser: bard-spill, party-guider, utenfor kamp, nybegynnertips), mal i `template.html`, og `build.py`.
+- `build/` – kilde: `content_base.py` (opprinnelig innhold + Dark Urge-tekster), `content.py` (utvidelser, inkludert skjematiske kart), mal i `template.html` (blant annet søk og kart), og `build.py`.
 
 ## Bygge
 
