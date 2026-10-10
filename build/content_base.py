@@ -306,6 +306,6 @@ DU = {'start': {'tips': [],
                        'html': '<p>Butleren vil at du skal drepe klerikeren <b>Isobel</b> ved Last Light Inn. Gjør du det, får du Slayer-formen, men det får store konsekvenser for området og '
                                'følgesvennene. Du kan la være – det er et helt gyldig valg, også for en Dark Urge-gjennomspilling.</p>'}]},
  # Nåler på kartet. Ligger her (ikke i DATA) så teksten bare dekodes for Dark Urge.
- 'pins': [{'map': 'map-beach', 'x': 34, 'y': 80, 'label': 'Liket ved stranden', 'href': 'beach', 'spoiler': 'du', 'card': 'beach:du:0'},
-          {'map': 'map-grove', 'x': 66, 'y': 16, 'label': 'Alfira og den første natten', 'href': 'grove', 'spoiler': 'du', 'card': 'grove:du:0'},
-          {'map': 'map-overview', 'x': 91, 'y': 34, 'label': 'Akt 2: Isobel', 'href': 'onward', 'spoiler': 'du', 'card': 'onward:du:0'}]}
+ 'pins': [{'map': 'map-beach', 'frame': 'beach', 'x': 44, 'y': 76, 'label': 'Liket ved stranden', 'href': 'beach', 'spoiler': 'du', 'card': 'beach:du:0'},
+          {'map': 'map-grove', 'frame': 'grove', 'x': 40, 'y': 32, 'label': 'Alfira og den første natten', 'href': 'grove', 'spoiler': 'du', 'card': 'grove:du:0'},
+          {'map': 'map-overview', 'frame': 'wild', 'x': 14, 'y': 24, 'label': 'Akt 2: Isobel', 'href': 'onward', 'spoiler': 'du', 'card': 'onward:du:0'}]}

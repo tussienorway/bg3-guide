@@ -4,7 +4,8 @@ Statisk, selvstendig side – ingen eksterne ressurser. Den ferdige siden kan pu
 
 - `index.html` – selve guiden (forsiden for GitHub Pages / Netlify)
 - `bg3-nybegynnerguide.html` – identisk kopi
-- `build/` – kilde: `content_base.py` (opprinnelig innhold + Dark Urge-tekster), `content.py` (utvidelser, inkludert kartlenker), mal i `template.html` (blant annet søk og kart), og `build.py`.
+- `build/` – kilde: `content_base.py` (opprinnelig innhold + Dark Urge-tekster), `content.py` (utvidelser, inkludert kart), mal i `template.html` (blant annet søk og kart), og `build.py`.
+- `img/kart/` – lokale spillkart (WebP) fra bg3.wiki. Tilhører Larian Studios.
 
 ## Bygge
 
@@ -23,9 +24,11 @@ Skriptet leser `build/content.py` og `build/template.html`, setter inn innholdet
 Valg (hovedperson, klasse, spoilerbrytere, fremdrift) lagres i nettleserens localStorage under nøkkelen `bg3guide.v1`.
 Dark Urge-innhold ligger base64-kodet i kilden og dekodes bare når «The Dark Urge» er valgt.
 
-## Kart: hvorfor siden ikke viser spillkart
+## Kartbilder
 
-Kart-delen lenker til områdene. Den laster ingen kartbilder, verken lokalt eller fra andre nettsteder. Sjekken under er gjort 10. oktober 2026. Konklusjonen er at det ikke finnes en kilde som tydelig tillater å kopiere akt 1-kartene inn i dette repoet.
+Kartbildene i `img/kart/` tilhører © Larian Studios. De er hentet fra filsider på [bg3.wiki](https://bg3.wiki/) og brukt i denne gratis, ikke-kommersielle fanguiden, med kildehenvisning under hvert bilde. De fjernes hvis rettighetshaveren ber om det.
+
+Sjekken under er gjort 10. oktober 2026. Den fant ikke et tydelig løyve til å kopiere kartene. Eieren av guiden har likevel valgt å legge dem inn, og tar den lille risikoen for et krav om å ta dem ned.
 
 ### Larian Studios, Baldur's Gate 3
 
@@ -47,4 +50,4 @@ Guiden er uoffisiell, gratis og ikke godkjent av Larian eller Wizards.
 - Opplastede filer skal ha lisens på filsiden. Skjermbilder antas å falle under Larians eller Wizards' fanpolitikk. Det er ikke en egen lisens som tillater at andre kopierer filen.
 - Filsider sjekket, uten lisensmal: [File:BG3 Map.webp](https://bg3.wiki/wiki/File:BG3_Map.webp), [File:Dank Crypt Map.jpg](https://bg3.wiki/wiki/File:Dank_Crypt_Map.jpg), [File:Druid Grove Map.png](https://bg3.wiki/wiki/File:Druid_Grove_Map.png), [File:GoblinCampOuterMap.png](https://bg3.wiki/wiki/File:GoblinCampOuterMap.png). De ligger i [Category:Location map images](https://bg3.wiki/wiki/Category:Location_map_images), som dekker både uthentede kart og skjermbilder.
 
-Derfor er kartene ikke kopiert inn, og de blir heller ikke hotlinket. Hvert kartkort lenker til områdets side på bg3.wiki og til Map Genie med dyp lenke (`regions` eller `locationIds`). Det er det interaktive kartet wiki-en selv peker til, blant annet fra forsiden og fra sider som Zhalk (`locationIds`). Lista med steder under hvert kort er guidens egen tekst.
+Bildene ligger lokalt (WebP i `img/kart/`), så siden ikke hotlinker. Hvert kartkort har i tillegg lenke til områdets side på bg3.wiki og til Map Genie med dyp lenke (`regions` eller `locationIds`). Det er det interaktive kartet wiki-en selv peker til. Nautiloiden har ingen uthentet gulvplan på wiki-en, så det kortet har bare stedsliste og lenker. Lista under hvert kart er guidens egen tekst.

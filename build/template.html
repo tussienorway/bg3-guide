@@ -79,6 +79,16 @@ footer{max-width:1200px;margin:0 auto;padding:1rem 1rem 3rem;color:var(--muted);
 .vh{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .map-note{color:var(--muted);font-size:.88rem;margin:.15rem 0 .45rem}
 .map-links{font-size:.9rem;margin:.35rem 0}
+.map-fig{margin:.35rem 0 .85rem}
+.map-stage{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#0e0c12}
+.map-zoom{display:block;width:100%;padding:0;border:0;background:transparent;cursor:zoom-in;line-height:0}
+.map-zoom img{display:block;width:100%;height:auto}
+.hotspot{position:absolute;z-index:2;transform:translate(-50%,-50%);width:1.7rem;height:1.7rem;border-radius:99px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;text-decoration:none;border:2px solid #1a1520;box-shadow:0 1px 4px rgba(0,0,0,.6)}
+.hotspot:hover,.hotspot:focus{outline:2px solid #fff;outline-offset:2px;z-index:3}
+.map-credit{color:var(--muted);font-size:.82rem;margin:.3rem 0 .15rem}
+#mapZoom{align-items:center;flex-direction:column;gap:.6rem}
+#mapZoom img{max-width:min(96vw,1400px);max-height:86vh;width:auto;height:auto;border-radius:8px;background:#0e0c12}
+.map-zoom-close{align-self:flex-end}
 .map-jumps{display:grid;gap:.55rem;margin:.35rem 0 .75rem}
 .map-jump{display:block;text-decoration:none;background:var(--panel2);border:1px solid var(--gold);border-radius:12px;padding:.7rem .85rem;color:var(--ink)}
 .map-jump:hover,.map-jump:focus{outline:2px solid var(--gold);outline-offset:1px}
@@ -156,8 +166,14 @@ select{font:inherit;background:var(--panel2);color:var(--ink);border:1px solid v
 </div>
 <footer>
   Uoffisiell fanguide. Baldur's Gate 3 er et varemerke for Larian Studios. Mekanikk er sjekket mot <a href="https://bg3.wiki/" rel="noopener">bg3.wiki</a> (Patch 8). Valgene dine lagres bare lokalt i nettleseren (localStorage).
+  Kartbildene tilhører © Larian Studios og er brukt her i en ikke-kommersiell fanguide, hentet via <a href="https://bg3.wiki/" rel="noopener">bg3.wiki</a>. De fjernes hvis rettighetshaveren ber om det.
   <div class="row"><button id="resetBtn">Nullstill alle valg og fremdrift</button></div>
 </footer>
+
+<div class="overlay" id="mapZoom" role="dialog" aria-modal="true" aria-label="Kart i full størrelse">
+  <button type="button" class="map-zoom-close" data-zoom-close>Lukk</button>
+  <img id="mapZoomImg" alt="">
+</div>
 
 <div class="overlay" id="setup" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
   <div class="modal">
@@ -280,6 +296,38 @@ function mapJump(j){
     (j.note?'<span class="note">'+esc(j.note)+'</span>':'')+
     '<span class="go">Åpne i ny fane</span></a>';
 }
+function pinInk(p){
+  if(p.spoiler==='loot')return ['#3d9a6a','#fff'];
+  if(p.spoiler==='story')return ['#c78a3c','#1a1520'];
+  if(p.spoiler==='du')return ['#d45d6c','#fff'];
+  return ['#e2c275','#1a1520'];
+}
+function hotspot(p){
+  const c=pinInk(p);
+  return '<a class="hotspot '+(p.spoiler||'')+'" href="#'+esc(p.href)+'" style="left:'+p.x+'%;top:'+p.y+'%;background:'+c[0]+';color:'+c[1]+'" aria-label="'+esc(p._n+'. '+p.label)+'">'+p._n+'</a>';
+}
+function mapFigure(f, pins){
+  return '<figure class="map-fig">'+
+    (f.note?'<figcaption class="map-note">'+esc(f.note)+'</figcaption>':'')+
+    '<div class="map-stage">'+
+      '<button type="button" class="map-zoom" data-zoom="'+esc(f.src)+'" data-zoom-alt="'+esc(f.alt)+'" aria-label="Åpne kartet i full størrelse: '+esc(f.alt)+'">'+
+        '<img src="'+esc(f.src)+'" alt="'+esc(f.alt)+'"></button>'+
+      pins.map(hotspot).join('')+
+    '</div>'+
+    '<p class="map-credit">Kart: © Larian Studios, via <a href="'+esc(f.page)+'" rel="noopener noreferrer" target="_blank">bg3.wiki</a></p>'+
+  '</figure>';
+}
+function openZoom(src, alt){
+  const img=$('mapZoomImg');
+  img.src=src; img.alt=alt||'Kart';
+  $('mapZoom').classList.add('open');
+}
+function closeZoom(){
+  const z=$('mapZoom');
+  if(!z || !z.classList.contains('open')) return;
+  z.classList.remove('open');
+  $('mapZoomImg').removeAttribute('src');
+}
 function renderMaps(){
   const M=DATA.maps;
   if(!M){$('maps').innerHTML='';$('navMaps').innerHTML='';return;}
@@ -288,10 +336,15 @@ function renderMaps(){
   const nav=[];
   M.areas.forEach(m=>{
     const shown=areaPins(m).filter(pinShown);
-    const list=shown.length?('<ol class="pinlist">'+shown.map((p,i)=>'<li><a class="'+(p.spoiler||'')+'" href="#'+esc(p.href)+'"><span class="n">'+
-      (i+1)+'</span><span>'+esc(p.label)+'</span></a></li>').join('')+'</ol>'):
+    shown.forEach((p,i)=>{p._n=i+1;});
+    const frames=m.frames||[];
+    const first=frames[0]&&frames[0].id;
+    const figs=frames.map(f=>mapFigure(f, shown.filter(p=>(p.frame||first)===f.id))).join('');
+    const list=shown.length?('<ol class="pinlist">'+shown.map(p=>'<li><a class="'+(p.spoiler||'')+'" href="#'+esc(p.href)+'"><span class="n">'+
+      p._n+'</span><span>'+esc(p.label)+'</span></a></li>').join('')+'</ol>'):
       '<p class="map-note">Ingen steder å vise med de spoilerbryterne som er på.</p>';
     html+='<section class="node" id="'+m.id+'"><div class="act">Kart</div><h3>'+esc(m.title)+'</h3><p class="map-note">'+esc(m.blurb)+'</p>'+
+      figs+
       '<div class="map-jumps">'+(m.jumps||[]).map(mapJump).join('')+'</div>'+
       '<h4>Steder i guiden</h4>'+list+'</section>';
     nav.push('<li><a href="#'+m.id+'">'+esc(m.title)+'</a></li>');
@@ -761,6 +814,7 @@ function init(){
   $('q').addEventListener('keydown', onSearchKey);
   document.addEventListener('keydown',e=>{
     if(e.key==='Escape'){
+      if($('mapZoom').classList.contains('open')){closeZoom();e.preventDefault();return;}
       if(state&&$('setup').classList.contains('open')){closeSetup();return;}
       if(!$('searchResults').hidden){closeSearch();e.preventDefault();}
       return;
@@ -779,6 +833,9 @@ function init(){
   });
   document.addEventListener('click',e=>{
     const t=e.target;
+    const zoom=t.closest&&t.closest('[data-zoom]');
+    if(zoom){openZoom(zoom.getAttribute('data-zoom'), zoom.getAttribute('data-zoom-alt')||'');return;}
+    if(t.id==='mapZoom' || (t.closest&&t.closest('[data-zoom-close]'))){closeZoom();return;}
     if(t.closest&&t.closest('#sidenav a')&&$('sidenav').classList.contains('open')){$('sidenav').classList.remove('open');$('menuBtn').setAttribute('aria-expanded','false');}
     const srBtn=t.closest&&t.closest('[data-sr]');
     if(srBtn){goResult(searchHits[+srBtn.dataset.sr]);return;}
