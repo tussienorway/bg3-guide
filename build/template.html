@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baldur's Gate 3 – nybegynnerguide (bard-fokus)</title>
+<meta name="description" content="Spoilervennlig nybegynnerguide til Baldur's Gate 3 på norsk, med bard-spor og valg av hovedperson.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%237a1f2b'/%3E%3Ctext x='32' y='43' font-size='30' text-anchor='middle' fill='%23f2d58a' font-family='serif'%3Ed20%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#141118;--panel:#1e1a24;--panel2:#262030;--ink:#ece6f2;--muted:#a99fb6;--gold:#e2c275;--red:#a3283a;--line:#3a3245;--ok:#5fb37a;--build:#4f8fd6;--story:#c78a3c;--du:#b0263b}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--gold)}
+header{position:sticky;top:0;z-index:20;background:linear-gradient(#1b1621,#17131c);border-bottom:1px solid var(--line);padding:.6rem 1rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+header h1{font:600 1.15rem Georgia,serif;margin:0;color:var(--gold);flex:1 1 auto}
+.chip{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:.25rem .7rem;font-size:.88rem;white-space:nowrap}
+.chip b{color:var(--gold)}
+.chip.du{border-color:var(--du)}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);padding:.35rem .8rem}
+button:hover{border-color:var(--gold)}
+button.primary{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
+.layout{display:grid;grid-template-columns:270px 1fr;gap:1.2rem;max-width:1200px;margin:0 auto;padding:1rem}
+nav{position:sticky;top:4.2rem;align-self:start;max-height:calc(100vh - 5rem);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.8rem}
+nav h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:.8rem 0 .3rem}
+nav ol{list-style:none;margin:0;padding:0}
+nav li{display:flex;align-items:center;gap:.4rem;padding:.15rem 0}
+nav li a{color:var(--ink);text-decoration:none;font-size:.93rem}
+nav li a:hover{color:var(--gold)}
+nav li.done a{color:var(--muted);text-decoration:line-through}
+.progress{height:6px;background:var(--panel2);border-radius:6px;overflow:hidden;margin:.3rem 0}
+.progress span{display:block;height:100%;background:var(--ok);width:0}
+.toggle{display:flex;align-items:center;gap:.5rem;font-size:.9rem;margin:.35rem 0;cursor:pointer}
+.toggle input{accent-color:var(--gold);width:1.05rem;height:1.05rem}
+main{min-width:0}
+.intro{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem}
+section.node{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;scroll-margin-top:5rem}
+section.node.done{opacity:.8}
+.node-head{display:flex;gap:.8rem;align-items:baseline;flex-wrap:wrap}
+.act{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gold)}
+.node h3{font:600 1.35rem Georgia,serif;margin:.1rem 0 .3rem;flex:1}
+.node .summary{color:var(--muted);margin:.2rem 0 .7rem}
+.node h4{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:1rem 0 .3rem}
+.node ul{margin:.2rem 0;padding-left:1.2rem}
+.node li{margin:.25rem 0}
+.tip{border-left:3px solid var(--gold);background:var(--panel2);padding:.5rem .8rem;border-radius:0 8px 8px 0;margin:.45rem 0}
+.tip.bard{border-left-color:#c86fd6}
+.tip.du{border-left-color:var(--du)}
+.tag{display:inline-block;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:.05rem .45rem;border-radius:4px;margin-right:.4rem;vertical-align:1px;background:#3b3047;color:var(--ink)}
+.tag.loot{background:#2f7a5a}.card.loot{border-color:#2f6a50}
+kbd{display:inline-block;font:600 .8rem/1.2 ui-monospace,Consolas,monospace;background:#120f16;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:.05rem .35rem;margin:0 .05rem;color:var(--gold)}
+.tag.bard{background:#5b2d66}.tag.build{background:var(--build)}.tag.story{background:var(--story)}.tag.du{background:var(--du)}
+.card{border:1px solid var(--line);border-radius:10px;margin:.6rem 0;overflow:hidden}
+.card .ch{padding:.5rem .8rem;background:#2b2436;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.card .ch strong{flex:1}
+.card .cb{padding:.4rem .9rem .6rem}
+.card.build{border-color:#2f5580}.card.story{border-color:#7d5626}.card.du{border-color:#7a1f2b}
+.card.locked .ch{background:repeating-linear-gradient(45deg,#231d2b,#231d2b 10px,#28212f 10px,#28212f 20px)}
+.card.locked .ch span.muted{color:var(--muted);font-size:.9rem;flex:1}
+.done-toggle{font-size:.85rem}
+.quick{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.7rem}
+.quick a{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:.2rem .7rem;font-size:.88rem;text-decoration:none}
+.quick a:hover{border-color:var(--gold)}
+.lbl{display:inline-block;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:.05rem .45rem;border-radius:4px;background:#2f3b4a;color:var(--ink);margin-left:.4rem;vertical-align:2px}
+.node ol.num{margin:.2rem 0;padding-left:1.6rem}.node ol.num li{margin:.3rem 0}
+section.group-head{border-color:var(--gold)}
+.bard-wrap .notice{color:var(--muted)}
+footer{max-width:1200px;margin:0 auto;padding:1rem 1rem 3rem;color:var(--muted);font-size:.85rem}
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(8,6,10,.82);z-index:50;display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:2rem 1rem}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--gold);border-radius:14px;max-width:760px;width:100%;padding:1.2rem 1.4rem}
+.modal h2{font:600 1.4rem Georgia,serif;color:var(--gold);margin:.2rem 0 .4rem}
+.modal h3{font-size:.95rem;margin:1.1rem 0 .4rem}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.6rem}
+.choice{display:block;border:1px solid var(--line);border-radius:10px;padding:.7rem .8rem;background:var(--panel2);cursor:pointer}
+.choice:has(input:checked){border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.choice input{margin-right:.4rem;accent-color:var(--gold)}
+.choice small{display:block;color:var(--muted);margin-top:.25rem}
+select{font:inherit;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:.4rem .6rem}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:1rem}
+.err{color:#ff8b98;font-size:.9rem;min-height:1.2em}
+.menu-btn{display:none}
+@media (max-width:860px){.layout{grid-template-columns:1fr}nav{position:static;max-height:none;display:none}nav.open{display:block}.menu-btn{display:inline-block}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header>
+  <button class="menu-btn" id="menuBtn" aria-controls="sidenav" aria-expanded="false">☰</button>
+  <h1>BG3 · nybegynnerguide</h1>
+  <span class="chip" id="chipPro">Hovedperson: <b>–</b></span>
+  <span class="chip" id="chipCls">Klasse: <b>–</b></span>
+  <button id="changeBtn" title="Endre hovedperson og klasse">Endre</button>
+</header>
+
+<div class="layout">
+  <nav id="sidenav" aria-label="Innhold">
+    <h2>Fremdrift</h2>
+    <div class="progress"><span id="progBar"></span></div>
+    <div id="progTxt" style="font-size:.85rem;color:var(--muted)"></div>
+    <h2>Scener</h2>
+    <ol id="navNodes"></ol>
+    <h2>Bard-sporet</h2>
+    <ol id="navBard"></ol>
+    <div id="navGuides"></div>
+    <h2>Spoilere</h2>
+    <div id="spoilerToggles"></div>
+  </nav>
+  <main>
+    <div class="intro" id="intro"></div>
+    <div id="nodes"></div>
+    <div id="bard" class="bard-wrap"></div>
+    <div id="guides"></div>
+  </main>
+</div>
+<footer>
+  Uoffisiell fanguide. Baldur's Gate 3 er et varemerke for Larian Studios. Mekanikk er sjekket mot <a href="https://bg3.wiki/" rel="noopener">bg3.wiki</a> (Patch 8). Valgene dine lagres bare lokalt i nettleseren (localStorage).
+  <div class="row"><button id="resetBtn">Nullstill alle valg og fremdrift</button></div>
+</footer>
+
+<div class="overlay" id="setup" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+  <div class="modal">
+    <h2 id="setupTitle">Hvem spiller du som?</h2>
+    <p style="color:var(--muted);margin:.2rem 0">Guiden tilpasser scener, tips og spoilere til hovedpersonen og klassen din. Du kan endre dette når som helst fra toppen av siden.</p>
+    <h3>1. Hovedperson</h3>
+    <div class="choices">
+      <label class="choice"><input type="radio" name="pro" value="custom"><b>Egen karakter (custom)</b><small>Din egen helt («Tav»). Ingen fast personlig historie.</small></label>
+      <label class="choice"><input type="radio" name="pro" value="du"><b>The Dark Urge</b><small>Egen karakter med en mørk, fast bakhistorie.</small></label>
+      <label class="choice"><input type="radio" name="pro" value="origin"><b>Opprinnelseskarakter</b><small>Spill som en av følgesvennene (Astarion, Shadowheart …).</small></label>
+    </div>
+    <div id="originRow" class="row" style="display:none">
+      <label for="originSel">Hvilken?</label>
+      <select id="originSel"></select>
+    </div>
+    <h3>2. Klasse</h3>
+    <div class="row" style="margin-top:0">
+      <select id="clsSel" aria-label="Klasse"></select>
+      <span id="clsDesc" style="color:var(--muted);font-size:.9rem"></span>
+    </div>
+    <h3>3. Spoilere (kan endres senere)</h3>
+    <div id="setupToggles"></div>
+    <div class="err" id="setupErr"></div>
+    <div class="row">
+      <button class="primary" id="startBtn">Start guiden</button>
+      <button id="cancelBtn" style="display:none">Avbryt</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = __DATA__;
+const DU_B64 = "__DU_B64__";
+(function(){
+'use strict';
+const KEY='bg3guide.v1';
+const KINDS={build:'Bygg/optimalisering',story:'Historiekonsekvenser',loot:'Plassering av funn',du:'Dark Urge-hendelser'};
+const COMPANIONS=[
+  {id:'shadowheart',text:'<b>Shadowheart</b> – like ved vraket.'},
+  {id:'astarion',text:'<b>Astarion</b> – nær krasjstedet («noen trenger hjelp …»). Han er ikke helt den han gir seg ut for.'},
+  {id:'gale',text:'<b>Gale</b> – ved waypointet på Roadside Cliffs: en hånd stikker ut av en runeportal.'},
+  {id:'laezel',text:'<b>Lae\u2019zel</b> – på Roadside Cliffs, fanget i et bur av to tieflinger.'}
+];
+let state=load();
+let revealed={};          // per-økt «vis denne»-avsløringer
+let duCache=null;
+
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.pro)return Object.assign({show:{},done:{},bardForce:false},s);}catch(e){}return null;}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function $(id){return document.getElementById(id);}
+
+// Dark Urge-innhold dekodes kun for Dark Urge-spillere, så det aldri havner i siden ellers.
+function du(){
+  if(state.pro!=='du')return {};
+  if(!duCache){const bin=atob(DU_B64);const bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);duCache=JSON.parse(new TextDecoder('utf-8').decode(bytes));}
+  return duCache;
+}
+function proOk(p){if(!p||p==='all')return true;if(p==='notdu')return state.pro!=='du';return p===state.pro;}
+function clsOk(c){if(!c||c==='any')return true;if(c==='bard')return state.cls==='bard';if(c==='notbard')return state.cls!=='bard';return c===state.cls;}
+function visible(it){
+  if(typeof it==='string')return true;
+  if(it.hideOrigin&&state.pro==='origin'&&state.origin===it.hideOrigin)return false;
+  return proOk(it.pro)&&clsOk(it.cls);
+}
+function txt(it){return typeof it==='string'?it:it.text;}
+function proName(){if(state.pro==='du')return 'The Dark Urge';if(state.pro==='origin')return (DATA.origins[state.origin]||{}).name||'Opprinnelse';return 'Egen karakter';}
+function clsName(){return (DATA.classes[state.cls]||['?'])[0];}
+
+function fill(t){
+  return t.replace('{companions}',()=>{
+    const list=COMPANIONS.filter(c=>!(state.pro==='origin'&&state.origin===c.id));
+    return '<ul>'+list.map(c=>'<li>'+c.text+'</li>').join('')+'</ul>';
+  }).replace('{wyll}',()=> (state.pro==='origin'&&state.origin==='wyll')
+     ? 'Som Wyll er du selv «Blade of Frontiers» – tieflingene kjenner ryktet ditt.'
+     : 'En kriger, <b>Wyll</b>, kjemper ved porten. Snakk med ham inne i lunden for å få ham med.')
+  .replace('{wyllwl}',()=> (state.pro==='origin'&&state.origin==='wyll')
+     ? 'Du spiller selv <b>Wyll</b>, som er warlock fra start. Rådene her gjelder deg direkte.'
+     : 'Har du <b>Wyll</b> i gruppa, er han warlock fra start. Rådene gjelder ham, og Withers kan omskolere ham (patron, pakt og invokasjoner) hvis du vil prøve et annet oppsett.')
+  .replace('{astarion}',()=> (state.pro==='origin'&&state.origin==='astarion')
+     ? 'Du spiller selv <b>Astarion</b>, som er tyv fra start.'
+     : 'Følgesvennen <b>Astarion</b> er tyv (rogue) fra start. Rådene her gjelder ham eller en hvilken som helst tyv du har i gruppa.');
+}
+
+function renderTip(t){
+  const isDu=t.pro==='du', isBard=t.cls==='bard';
+  const tag=isDu?'<span class="tag du">Dark Urge</span>':isBard?'<span class="tag bard">Bard</span>':'';
+  return '<div class="tip'+(isDu?' du':isBard?' bard':'')+'">'+tag+t.text+'</div>';
+}
+function renderCard(c,key){
+  if(c.kind==='du'&&state.pro!=='du')return '';
+  const label=KINDS[c.kind];
+  const open=state.show[c.kind]||revealed[key];
+  if(open){
+    return '<div class="card '+c.kind+'"><div class="ch"><span class="tag '+c.kind+'">'+label+'</span><strong>'+c.title+'</strong>'+
+      (revealed[key]&&!state.show[c.kind]?'<button data-hide="'+key+'">Skjul</button>':'')+'</div><div class="cb">'+c.html+'</div></div>';
+  }
+  // Låst: for historie/Dark Urge vises ikke engang tittelen (den kan avsløre noe).
+  const hint=c.kind==='build'?'<strong>'+c.title+'</strong>':c.hint?'<strong>'+c.hint+'</strong>':'<span class="muted">Skjult spoiler – innholdet vises ikke før du ber om det.</span>';
+  return '<div class="card locked '+c.kind+'"><div class="ch"><span class="tag '+c.kind+'">'+label+'</span>'+hint+'<button data-reveal="'+key+'">Vis denne</button></div></div>';
+}
+
+function renderNode(n){
+  const extra=du()[n.id]||{tips:[],cards:[]};
+  const basics=n.basics.filter(visible).map(b=>'<li>'+fill(txt(b))+'</li>').join('');
+  const tips=n.tips.filter(visible).concat(extra.tips.map(t=>Object.assign({pro:'du'},t)).filter(visible));
+  const cards=n.cards.filter(visible).concat(extra.cards.filter(visible));
+  const done=!!state.done[n.id];
+  return '<section class="node'+(done?' done':'')+'" id="'+n.id+'">'+
+    '<div class="node-head"><div style="flex:1"><div class="act">'+esc(n.act)+'</div><h3>'+esc(n.title)+'</h3></div>'+
+    '<label class="toggle done-toggle"><input type="checkbox" data-done="'+n.id+'"'+(done?' checked':'')+'> Ferdig</label></div>'+
+    '<p class="summary">'+n.summary+'</p>'+
+    (basics?'<h4>Det viktigste</h4><ul>'+basics+'</ul>':'')+
+    (tips.length?'<h4>Tips for deg</h4>'+tips.map(renderTip).join(''):'')+
+    (cards.length?'<h4>Spoilerkort</h4>'+cards.map((c,i)=>renderCard(c,n.id+':'+i)).join(''):'')+
+  '</section>';
+}
+
+function renderSection(s,actLabel){
+  const basics=(s.basics||[]).filter(visible).map(b=>'<li>'+fill(txt(b))+'</li>').join('');
+  const tips=(s.tips||[]).filter(visible);
+  const cards=(s.cards||[]).filter(visible);
+  const lt=s.ordered?'ol class="num"':'ul', lc=s.ordered?'ol':'ul';
+  return '<section class="node" id="'+s.id+'"><div class="act">'+esc(actLabel)+(s.label?'<span class="lbl">'+esc(s.label)+'</span>':'')+'</div><h3>'+esc(s.title)+'</h3>'+
+    (s.summary?'<p class="summary">'+s.summary+'</p>':'')+
+    (basics?'<'+lt+'>'+basics+'</'+lc+'>':'')+
+    (tips.length?'<h4>Tips for deg</h4>'+tips.map(renderTip).join(''):'')+
+    (cards.length?'<h4>Spoilerkort</h4>'+cards.map((c,i)=>renderCard(c,s.id+':'+i)).join(''):'')+'</section>';
+}
+function renderGuides(){
+  $('guides').innerHTML=DATA.guides.map(g=>'<section class="node group-head" id="'+g.id+'"><div class="act">Guide</div><h3>'+esc(g.title)+'</h3><p class="summary">'+g.summary+'</p></section>'+
+    g.sections.map(s=>renderSection(s,g.nav)).join('')).join('');
+  $('navGuides').innerHTML=DATA.guides.map(g=>'<h2><a href="#'+g.id+'" style="color:inherit;text-decoration:none">'+esc(g.nav)+'</a></h2><ol>'+
+    g.sections.map(s=>'<li><a href="#'+s.id+'">'+esc(s.title)+'</a></li>').join('')+'</ol>').join('');
+}
+function renderBard(){
+  const el=$('bard');
+  const isBard=state.cls==='bard';
+  let h='<section class="node" id="bard-track"><div class="act">Klassespor</div><h3>Bard-sporet</h3>';
+  if(!isBard&&!state.bardForce){
+    h+='<p class="notice">Du har valgt <b>'+esc(clsName())+'</b>, så bard-sporet er skjult. <button id="showBard">Vis likevel</button></p></section>';
+    el.innerHTML=h;$('navBard').innerHTML='<li style="color:var(--muted);font-size:.9rem">Skjult (ikke bard)</li>';return;
+  }
+  h+='<p class="summary">Grunnmekanikken er synlig. Byggtips og optimalisering ligger i spoilerkort.'+(!isBard?' <button id="hideBard">Skjul igjen</button>':'')+'</p></section>';
+  h+=DATA.bard.map(s=>renderSection(s,'Bard')).join('');
+  el.innerHTML=h;
+  $('navBard').innerHTML=DATA.bard.map(s=>'<li><a href="#'+s.id+'">'+esc(s.title)+'</a></li>').join('');
+}
+
+function renderToggles(target,prefix){
+  const isDu=prefix==='s'?setupPro()==='du':!!(state&&state.pro==='du');
+  const kinds=['build','story','loot'].concat(isDu?['du']:[]);
+  const src=prefix==='s'?setupShow:state.show;
+  $(target).innerHTML=kinds.map(k=>'<label class="toggle"><input type="checkbox" data-'+prefix+'kind="'+k+'"'+(src[k]?' checked':'')+'> Vis '+KINDS[k].toLowerCase()+'</label>').join('');
+}
+
+function render(){
+  if(!state){return;}
+  $('chipPro').innerHTML='Hovedperson: <b>'+esc(proName())+'</b>';
+  $('chipPro').classList.toggle('du',state.pro==='du');
+  $('chipCls').innerHTML='Klasse: <b>'+esc(clsName())+'</b>';
+  const cd=DATA.classes[state.cls];
+  let intro='<b>Velkommen!</b> Du følger guiden som <b>'+esc(proName())+'</b> ('+esc(clsName())+'). ';
+  intro+=esc(cd?cd[1]:'')+' ';
+  if(state.pro==='origin'){const o=DATA.origins[state.origin];if(o&&o.cls!==state.cls)intro+='Merk: '+esc(o.name)+' er normalt '+esc(DATA.classes[o.cls][0])+', men du kan velge en annen klasse i karakterskapingen. ';}
+  intro+='Grunnleggende info vises alltid; dypere tips og historiespoilere åpner du med bryterne i menyen eller med «Vis denne» på hvert kort.';
+  const bardOn=state.cls==='bard'||state.bardForce;
+  intro+='<div class="quick">'+(bardOn?'<a href="#bard-play">Bard: tur for tur</a><a href="#bard-levels">Bard: formularer 1–6</a>':'')+
+    '<a href="#keys">Hurtigtaster</a><a href="#loot">Skjulte ting tidlig</a><a href="#rogue-core">Tyven</a><a href="#wl-core">Warlocken</a><a href="#party-synergy">Samspill</a><a href="#ooc">Utenfor kamp</a><a href="#tips-top">20 nybegynnertips</a></div>';
+  $('intro').innerHTML=intro;
+  $('nodes').innerHTML=DATA.nodes.map(renderNode).join('');
+  $('navNodes').innerHTML=DATA.nodes.map(n=>'<li class="'+(state.done[n.id]?'done':'')+'"><input type="checkbox" aria-label="Ferdig: '+esc(n.title)+'" data-done="'+n.id+'"'+(state.done[n.id]?' checked':'')+'><a href="#'+n.id+'">'+esc(n.title)+'</a></li>').join('');
+  renderBard();
+  renderGuides();
+  renderToggles('spoilerToggles','m');
+  const total=DATA.nodes.length, d=DATA.nodes.filter(n=>state.done[n.id]).length;
+  $('progBar').style.width=(100*d/total)+'%';$('progTxt').textContent=d+' av '+total+' scener ferdig';
+}
+
+// ---------- oppsett ----------
+let setupShow={};
+function setupPro(){const r=document.querySelector('input[name=pro]:checked');return r?r.value:null;}
+function openSetup(first){
+  setupShow=Object.assign({},state?state.show:{});
+  const pro=state?state.pro:null;
+  document.querySelectorAll('input[name=pro]').forEach(r=>r.checked=(r.value===pro));
+  $('originSel').value=state&&state.origin||'astarion';
+  $('clsSel').value=state&&state.cls||'bard';
+  $('originRow').style.display=pro==='origin'?'flex':'none';
+  $('cancelBtn').style.display=first?'none':'inline-block';
+  $('setupErr').textContent='';
+  updateClsDesc();renderToggles('setupToggles','s');
+  $('setup').classList.add('open');
+  setTimeout(()=>{const f=document.querySelector('input[name=pro]:checked')||document.querySelector('input[name=pro]');f&&f.focus();},0);
+}
+function closeSetup(){$('setup').classList.remove('open');}
+function updateClsDesc(){const c=DATA.classes[$('clsSel').value];$('clsDesc').textContent=c?c[1]:'';}
+
+function init(){
+  $('originSel').innerHTML=Object.entries(DATA.origins).map(([k,o])=>'<option value="'+k+'">'+esc(o.name)+' (standard: '+esc(DATA.classes[o.cls][0])+')</option>').join('');
+  $('clsSel').innerHTML=Object.entries(DATA.classes).map(([k,c])=>'<option value="'+k+'">'+esc(c[0])+(k==='bard'?' (anbefalt for denne guiden)':'')+'</option>').join('');
+  document.querySelectorAll('input[name=pro]').forEach(r=>r.addEventListener('change',()=>{
+    $('originRow').style.display=setupPro()==='origin'?'flex':'none';
+    if(setupPro()!=='du')delete setupShow.du;
+    renderToggles('setupToggles','s');
+  }));
+  $('clsSel').addEventListener('change',updateClsDesc);
+  $('startBtn').addEventListener('click',()=>{
+    const pro=setupPro();
+    if(!pro){$('setupErr').textContent='Velg en hovedperson først.';return;}
+    const prev=state||{done:{},bardForce:false};
+    const show=Object.assign({},setupShow); if(pro!=='du')delete show.du;
+    state={pro:pro,origin:pro==='origin'?$('originSel').value:null,cls:$('clsSel').value,show:show,done:prev.done||{},bardForce:false};
+    duCache=null;revealed={};save();closeSetup();render();
+  });
+  $('cancelBtn').addEventListener('click',closeSetup);
+  $('changeBtn').addEventListener('click',()=>openSetup(false));
+  $('resetBtn').addEventListener('click',()=>{if(confirm('Nullstille hovedperson, klasse, spoilervalg og fremdrift?')){localStorage.removeItem(KEY);state=null;duCache=null;revealed={};openSetup(true);}});
+  $('menuBtn').addEventListener('click',()=>{const n=$('sidenav');n.classList.toggle('open');$('menuBtn').setAttribute('aria-expanded',n.classList.contains('open'));});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&state&&$('setup').classList.contains('open'))closeSetup();});
+  document.addEventListener('change',e=>{
+    const t=e.target;
+    if(t.dataset.done){state.done[t.dataset.done]=t.checked;save();render();}
+    else if(t.dataset.mkind){state.show[t.dataset.mkind]=t.checked;save();render();}
+    else if(t.dataset.skind){setupShow[t.dataset.skind]=t.checked;}
+  });
+  document.addEventListener('click',e=>{
+    const t=e.target;
+    if(t.closest&&t.closest('#sidenav a')&&$('sidenav').classList.contains('open')){$('sidenav').classList.remove('open');$('menuBtn').setAttribute('aria-expanded','false');}
+    if(t.dataset.reveal){revealed[t.dataset.reveal]=true;render();}
+    else if(t.dataset.hide){delete revealed[t.dataset.hide];render();}
+    else if(t.id==='showBard'){state.bardForce=true;save();render();}
+    else if(t.id==='hideBard'){state.bardForce=false;save();render();}
+  });
+  if(state){render();}else{openSetup(true);}
+}
+init();
+})();
+</script>
+</body>
+</html>
