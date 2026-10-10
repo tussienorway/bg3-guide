@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baldur's Gate 3 – nybegynnerguide (bard-fokus)</title>
+<meta name="description" content="Spoilervennlig nybegynnerguide til Baldur's Gate 3 på norsk, med bard-spor og valg av hovedperson.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%237a1f2b'/%3E%3Ctext x='32' y='43' font-size='30' text-anchor='middle' fill='%23f2d58a' font-family='serif'%3Ed20%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#141118;--panel:#1e1a24;--panel2:#262030;--ink:#ece6f2;--muted:#a99fb6;--gold:#e2c275;--red:#a3283a;--line:#3a3245;--ok:#5fb37a;--build:#4f8fd6;--story:#c78a3c;--du:#b0263b}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--gold)}
+header{position:sticky;top:0;z-index:20;background:linear-gradient(#1b1621,#17131c);border-bottom:1px solid var(--line);padding:.6rem 1rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+header h1{font:600 1.15rem Georgia,serif;margin:0;color:var(--gold);flex:1 1 auto}
+.chip{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:.25rem .7rem;font-size:.88rem;white-space:nowrap}
+.chip b{color:var(--gold)}
+.chip.du{border-color:var(--du)}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);padding:.35rem .8rem}
+button:hover{border-color:var(--gold)}
+button.primary{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
+.layout{display:grid;grid-template-columns:270px 1fr;gap:1.2rem;max-width:1200px;margin:0 auto;padding:1rem}
+nav{position:sticky;top:4.2rem;align-self:start;max-height:calc(100vh - 5rem);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.8rem}
+nav h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:.8rem 0 .3rem}
+nav ol{list-style:none;margin:0;padding:0}
+nav li{display:flex;align-items:center;gap:.4rem;padding:.15rem 0}
+nav li a{color:var(--ink);text-decoration:none;font-size:.93rem}
+nav li a:hover{color:var(--gold)}
+nav li.done a{color:var(--muted);text-decoration:line-through}
+.progress{height:6px;background:var(--panel2);border-radius:6px;overflow:hidden;margin:.3rem 0}
+.progress span{display:block;height:100%;background:var(--ok);width:0}
+.toggle{display:flex;align-items:center;gap:.5rem;font-size:.9rem;margin:.35rem 0;cursor:pointer}
+.toggle input{accent-color:var(--gold);width:1.05rem;height:1.05rem}
+main{min-width:0}
+.intro{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem}
+section.node{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;scroll-margin-top:5rem}
+section.node.done{opacity:.8}
+.node-head{display:flex;gap:.8rem;align-items:baseline;flex-wrap:wrap}
+.act{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gold)}
+.node h3{font:600 1.35rem Georgia,serif;margin:.1rem 0 .3rem;flex:1}
+.node .summary{color:var(--muted);margin:.2rem 0 .7rem}
+.node h4{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:1rem 0 .3rem}
+.node ul{margin:.2rem 0;padding-left:1.2rem}
+.node li{margin:.25rem 0}
+.tip{border-left:3px solid var(--gold);background:var(--panel2);padding:.5rem .8rem;border-radius:0 8px 8px 0;margin:.45rem 0}
+.tip.bard{border-left-color:#c86fd6}
+.tip.du{border-left-color:var(--du)}
+.tag{display:inline-block;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:.05rem .45rem;border-radius:4px;margin-right:.4rem;vertical-align:1px;background:#3b3047;color:var(--ink)}
+.tag.bard{background:#5b2d66}.tag.build{background:var(--build)}.tag.story{background:var(--story)}.tag.du{background:var(--du)}
+.card{border:1px solid var(--line);border-radius:10px;margin:.6rem 0;overflow:hidden}
+.card .ch{padding:.5rem .8rem;background:#2b2436;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.card .ch strong{flex:1}
+.card .cb{padding:.4rem .9rem .6rem}
+.card.build{border-color:#2f5580}.card.story{border-color:#7d5626}.card.du{border-color:#7a1f2b}
+.card.locked .ch{background:repeating-linear-gradient(45deg,#231d2b,#231d2b 10px,#28212f 10px,#28212f 20px)}
+.card.locked .ch span.muted{color:var(--muted);font-size:.9rem;flex:1}
+.done-toggle{font-size:.85rem}
+.bard-wrap .notice{color:var(--muted)}
+footer{max-width:1200px;margin:0 auto;padding:1rem 1rem 3rem;color:var(--muted);font-size:.85rem}
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(8,6,10,.82);z-index:50;display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:2rem 1rem}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--gold);border-radius:14px;max-width:760px;width:100%;padding:1.2rem 1.4rem}
+.modal h2{font:600 1.4rem Georgia,serif;color:var(--gold);margin:.2rem 0 .4rem}
+.modal h3{font-size:.95rem;margin:1.1rem 0 .4rem}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.6rem}
+.choice{display:block;border:1px solid var(--line);border-radius:10px;padding:.7rem .8rem;background:var(--panel2);cursor:pointer}
+.choice:has(input:checked){border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.choice input{margin-right:.4rem;accent-color:var(--gold)}
+.choice small{display:block;color:var(--muted);margin-top:.25rem}
+select{font:inherit;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:.4rem .6rem}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:1rem}
+.err{color:#ff8b98;font-size:.9rem;min-height:1.2em}
+.menu-btn{display:none}
+@media (max-width:860px){.layout{grid-template-columns:1fr}nav{position:static;max-height:none;display:none}nav.open{display:block}.menu-btn{display:inline-block}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header>
+  <button class="menu-btn" id="menuBtn" aria-controls="sidenav" aria-expanded="false">☰</button>
+  <h1>BG3 · nybegynnerguide</h1>
+  <span class="chip" id="chipPro">Hovedperson: <b>–</b></span>
+  <span class="chip" id="chipCls">Klasse: <b>–</b></span>
+  <button id="changeBtn" title="Endre hovedperson og klasse">Endre</button>
+</header>
+
+<div class="layout">
+  <nav id="sidenav" aria-label="Innhold">
+    <h2>Fremdrift</h2>
+    <div class="progress"><span id="progBar"></span></div>
+    <div id="progTxt" style="font-size:.85rem;color:var(--muted)"></div>
+    <h2>Scener</h2>
+    <ol id="navNodes"></ol>
+    <h2>Bard-sporet</h2>
+    <ol id="navBard"></ol>
+    <h2>Spoilere</h2>
+    <div id="spoilerToggles"></div>
+  </nav>
+  <main>
+    <div class="intro" id="intro"></div>
+    <div id="nodes"></div>
+    <div id="bard" class="bard-wrap"></div>
+  </main>
+</div>
+<footer>
+  Uoffisiell fanguide. Baldur's Gate 3 er et varemerke for Larian Studios. Mekanikk er sjekket mot <a href="https://bg3.wiki/" rel="noopener">bg3.wiki</a> (Patch 8). Valgene dine lagres bare lokalt i nettleseren (localStorage).
+  <div class="row"><button id="resetBtn">Nullstill alle valg og fremdrift</button></div>
+</footer>
+
+<div class="overlay" id="setup" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+  <div class="modal">
+    <h2 id="setupTitle">Hvem spiller du som?</h2>
+    <p style="color:var(--muted);margin:.2rem 0">Guiden tilpasser scener, tips og spoilere til hovedpersonen og klassen din. Du kan endre dette når som helst fra toppen av siden.</p>
+    <h3>1. Hovedperson</h3>
+    <div class="choices">
+      <label class="choice"><input type="radio" name="pro" value="custom"><b>Egen karakter (custom)</b><small>Din egen helt («Tav»). Ingen fast personlig historie.</small></label>
+      <label class="choice"><input type="radio" name="pro" value="du"><b>The Dark Urge</b><small>Egen karakter med en mørk, fast bakhistorie.</small></label>
+      <label class="choice"><input type="radio" name="pro" value="origin"><b>Opprinnelseskarakter</b><small>Spill som en av følgesvennene (Astarion, Shadowheart …).</small></label>
+    </div>
+    <div id="originRow" class="row" style="display:none">
+      <label for="originSel">Hvilken?</label>
+      <select id="originSel"></select>
+    </div>
+    <h3>2. Klasse</h3>
+    <div class="row" style="margin-top:0">
+      <select id="clsSel" aria-label="Klasse"></select>
+      <span id="clsDesc" style="color:var(--muted);font-size:.9rem"></span>
+    </div>
+    <h3>3. Spoilere (kan endres senere)</h3>
+    <div id="setupToggles"></div>
+    <div class="err" id="setupErr"></div>
+    <div class="row">
+      <button class="primary" id="startBtn">Start guiden</button>
+      <button id="cancelBtn" style="display:none">Avbryt</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = {"origins": {"astarion": {"name": "Astarion", "cls": "rogue"}, "shadowheart": {"name": "Shadowheart", "cls": "cleric"}, "gale": {"name": "Gale", "cls": "wizard"}, "laezel": {"name": "Lae'zel", "cls": "fighter"}, "wyll": {"name": "Wyll", "cls": "warlock"}, "karlach": {"name": "Karlach", "cls": "barbarian"}}, "classes": {"bard": ["Bard", "Støtte, kontroll og «ansiktet» i dialog. Charisma."], "barbarian": ["Barbarian", "Robust nærkjemper med Rage. Strength/Constitution."], "cleric": ["Cleric", "Helbredelse og støtte, rustning. Wisdom."], "druid": ["Druid", "Naturmagi og Wild Shape (dyreformer). Wisdom."], "fighter": ["Fighter", "Enkel og sterk våpenbruker, Action Surge. Strength eller Dexterity."], "monk": ["Monk", "Rask ubevæpnet kjemper med Ki. Dexterity/Wisdom."], "paladin": ["Paladin", "Hellig kriger med Divine Smite og ed (Oath). Strength/Charisma."], "ranger": ["Ranger", "Avstandskjemper/speider. Dexterity/Wisdom."], "rogue": ["Rogue", "Sneak Attack, låser og feller, ekstra bonushandling. Dexterity."], "sorcerer": ["Sorcerer", "Medfødt magi med Metamagic. Charisma."], "warlock": ["Warlock", "Eldritch Blast, få men korthvil-ladede plasser. Charisma."], "wizard": ["Wizard", "Største trolldomsliste, lærer fra skrullruller. Intelligence."]}, "nodes": [{"id": "start", "act": "Før du starter", "title": "Karakterskaping", "summary": "Valgene her bestemmer hvordan resten av spillet føles. Ingen valg er katastrofale – du kan omskolere (respec) senere.", "basics": ["<b>Ferdighetssjekker:<\/b> d20 + evnemodifikator + ferdighetsbonus (proficiency). I dialog lykkes en naturlig 20 alltid, og en naturlig 1 feiler alltid.", "<b>Bakgrunn (Background)<\/b> gir to ferdigheter og egne mål. Når du handler i tråd med bakgrunnen, får du <i>Inspiration<\/i>-poeng som lar deg slå om en mislykket sjekk. Dette er <u>ikke<\/u> det samme som bardens <i>Bardic Inspiration<\/i>.", "<b>Vanskelighetsgrad:<\/b> Explorer eller Balanced passer for første gjennomspilling. Honour Mode har bare én lagringsfil – ikke start der.", "<b>Lagre ofte<\/b> (hurtiglagring: F5 på PC). Lag gjerne flere manuelle lagringer før store valg."], "tips": [{"pro": "custom", "text": "<b>Egen karakter (Tav):<\/b> du har ingen fast personlig historie, så følgesvennenes historier står i sentrum. Velg rase, klasse og bakgrunn fritt – velg det som er gøy å rollespille."}, {"pro": "origin", "text": "<b>Opprinnelseskarakter:<\/b> du spiller som en av følgesvennene, med deres personlige historie og egne dialogvalg fra start. Du møter selvsagt ikke «deg selv» som rekrutterbar følgesvenn. Du kan velge en annen klasse enn standardklassen i karakterskapingen."}, {"pro": "du", "text": "<b>The Dark Urge:<\/b> du velger rase, klasse og utseende selv, men bakgrunnen er låst (Haunted One) og du har en egen, mørk hovedhistorie med mange valg om å gi etter for eller motstå trangen. Det anbefales ofte som <i>andre<\/i> gjennomspilling – men det går fint som første også. Mer detaljer ligger bak Dark Urge-spoilerbryteren."}, {"cls": "bard", "text": "<b>Bard:<\/b> sett <b>Charisma<\/b> høyest (styrer trylleformularer og dialog), deretter Dexterity (AC og initiativ) og Constitution (HP og konsentrasjon). Velg ferdigheter som <i>Persuasion<\/i>, <i>Deception<\/i> eller <i>Intimidation<\/i>, <i>Performance<\/i> – og vurder <i>Sleight of Hand<\/i> (låser/feller) eller <i>Perception<\/i>."}, {"cls": "bard", "text": "<b>Instrument:<\/b> barden velger et instrument i skapingen (Lute, Flute, Hand Drum, Lyre eller Violin). Valget er kosmetisk – alle fungerer likt med <i>Perform<\/i>."}, {"cls": "bard", "text": "<b>Trylleformularer:<\/b> 2 cantrips og 4 formularer på nivå 1. Bardens formularer er alltid «forberedt», og du kan bytte ut én ved hvert nivå. Gode nybegynnervalg: <i>Vicious Mockery<\/i> + <i>Friends<\/i>/<i>Minor Illusion<\/i>, og <i>Healing Word<\/i>, <i>Dissonant Whispers<\/i>, <i>Faerie Fire<\/i>, <i>Sleep<\/i> eller <i>Thunderwave<\/i>."}, {"cls": "notbard", "text": "Sett klassens hovedevne høyest (se klassebeskrivelsen i toppen). Har du lav Charisma, la en følgesvenn med høy Charisma starte samtaler der det er mulig – den som snakker, er den som slår terningen."}], "cards": [{"kind": "build", "cls": "bard", "title": "Startfordeling for bard (point buy)", "html": "<p>Et trygt oppsett med 27 poeng: <b>STR 8, DEX 14, CON 14, INT 8, WIS 12, CHA 15<\/b>. Legg rase-/opphavsbonusen (+2/+1) på <b>CHA (+2 → 17)<\/b> og <b>DEX (+1 → 15)<\/b>.<\/p><p>Bakgrunn: <b>Entertainer<\/b> (Acrobatics + Performance) eller <b>Charlatan<\/b> (Deception + Sleight of Hand) passer tematisk og overlapper lite med bardens egne ferdighetsvalg. Ved nivå 4: ta <i>Ability Improvement<\/i> og øk Charisma.<\/p>"}, {"kind": "build", "cls": "notbard", "title": "Generelt byggtips", "html": "<p>Maks hovedevnen din (16–17 ved start), hold Constitution på minst 14 for HP, og ikke spre poengene for tynt. Withers i leiren lar deg omskolere for 100 gull om du angrer.<\/p>"}]}, {"id": "nautiloid", "act": "Prolog", "title": "Nautiloiden", "summary": "Opplæringsdelen om bord på mind flayer-skipet. Du kan ikke vende tilbake hit etter krasjet – plukk med deg det du finner.", "basics": [{"hideOrigin": "shadowheart", "text": "Åpne kapselen med <b>Shadowheart<\/b> – hun blir følgesvenn."}, {"hideOrigin": "laezel", "text": "<b>Lae'zel<\/b> slutter seg til etter kampen mot impene."}, "Målet er å nå <b>roret (the Helm)<\/b>. Du trenger ikke beseire kambionen (Commander Zhalk) – det er meningen at du skal komme deg bort.", "Lær grunnhandlingene: <i>Action<\/i>, <i>Bonus Action<\/i> og bevegelse hver tur. <i>Help<\/i> vekker en nedslått alliert, og <i>Shove<\/i> kan dytte fiender ned fra kanter."], "tips": [{"cls": "bard", "text": "<b>Første kamp som bard:<\/b> gi <i>Bardic Inspiration<\/i> (bonushandling) til Lae'zel før hun angriper, og bruk <i>Vicious Mockery<\/i> på avstand som handling. Det er bardens grunnrytme: bonushandling på støtte, handling på kontroll/skade."}, {"cls": "bard", "text": "<i>Healing Word<\/i> er en bonushandling på avstand – perfekt for å reise opp en alliert som har falt, uten å bruke hele turen."}, {"hideOrigin": "shadowheart", "text": "Shadowheart (Cleric) kan kaste <i>Guidance<\/i> (+1d4 på evnesjekker) – nyttig før dialog og låsdirking."}], "cards": []}, {"id": "beach", "act": "Akt 1", "title": "Krasjstedet (Ravaged Beach)", "summary": "Du våkner ved vraket. Her samler du de første følgesvennene og aktiverer det første teleportpunktet (waypoint).", "basics": ["Utforsk området rundt vraket og ved <b>Roadside Cliffs<\/b>. Aktiver waypoints – de lar deg hurtigreise.", "Plukk opp mat: den blir til <b>Camp Supplies<\/b>, som du trenger for lange hvil.", "Følgesvenner i nærheten: {companions}"], "tips": [{"cls": "bard", "hideOrigin": "laezel", "text": "<b>Bardens øyeblikk:<\/b> der to tieflinger holder Lae'zel fanget i et bur, kan Persuasion/Intimidation ofte løse situasjonen uten kamp. Høy Charisma gjør barden til gruppas naturlige talsperson."}, {"cls": "any", "text": "Grønne terninger-ikoner i dialog viser hvilken ferdighet som sjekkes. Les DC-tallet – med lav sjanse kan det lønne seg å velge et annet alternativ eller lagre først."}], "cards": []}, {"id": "crypt", "act": "Akt 1", "title": "Overgrown Ruins og Dank Crypt", "summary": "Ruinene og krypten under er et tidlig område med feller, låste kister og en viktig skjelett-skikkelse.", "basics": ["Se etter feller og skjulte brytere – en karakter med høy Perception oppdager mer passivt.", "I krypten finner du <b>Withers<\/b>. Senere dukker han opp i leiren: han kan gjenopplive falne følgesvenner (200 gull) og omskolere klasse/evner (100 gull).", "Låste kister og dører åpnes med <i>Thieves' Tools<\/i> (Sleight of Hand) eller spesifikke nøkler."], "tips": [{"cls": "bard", "text": "<b>Jack of All Trades<\/b> (nivå 2) gir halv ferdighetsbonus på alle evnesjekker du <i>ikke<\/i> er trent i – barden blir derfor brukbar til nesten alt, også låsdirking og fellesjekking."}, {"cls": "bard", "text": "Har du tenkt å la barden dirke låser, er <i>Sleight of Hand<\/i> et godt valg for <b>Expertise<\/b> på nivå 3."}], "cards": []}, {"id": "camp", "act": "Akt 1", "title": "Leiren og første lange hvil", "summary": "Leiren er der historien skrider frem: mange samtaler og hendelser utløses bare når du tar lange hvil.", "basics": ["<b>Long Rest<\/b> gjenoppretter alt og koster Camp Supplies. <b>Short Rest<\/b> kan tas to ganger mellom hver lange hvil.", "Snakk med følgesvennene i leiren etter større hendelser – godkjenning (approval) styrer forhold og romanser.", "Ikke vær gjerrig med lange hvil: å hvile for sjelden kan gjøre at du går glipp av leirscener."], "tips": [{"cls": "bard", "text": "<b>Song of Rest<\/b> (nivå 2): én gang per lange hvil kan barden gi hele gruppa effekten av et ekstra korthvil – utenfor kamp. I praksis får du tre korthvil per dag i stedet for to."}, {"cls": "bard", "text": "Fra nivå 5 lader <b>Font of Inspiration<\/b> Bardic Inspiration på korthvil. Da kan du bruke inspirasjonene friskt, og så bruke Song of Rest/korthvil til å fylle opp."}, {"cls": "bard", "text": "Du kan bruke <i>Perform<\/i> med instrumentet hvor som helst, også i leiren for stemningen – men gull-tips kommer fra et publikum av NPC-er i befolkede områder."}], "cards": []}, {"id": "gate", "act": "Akt 1", "title": "Emerald Grove: kampen ved porten", "summary": "Goblins angriper porten til druidenes lund. Tieflinger og en fremmed kriger forsvarer den.", "basics": ["Bruk <b>høyt terreng<\/b> – avstandsangrep ovenfra får bonus. Goblinbueskyttere på tak er farlige; ta dem tidlig.", "Etter kampen: snakk med <b>Zevlor<\/b> og andre ved porten, og slipp inn i lunden.", "{wyll}"], "tips": [{"cls": "bard", "text": "<b>Thunderwave<\/b> dytter fiender bort – fra en kant kan det sende goblins rett ned. <b>Sleep<\/b> legger fiender med til sammen inntil 24 HP i søvn (ikke vesener med fey-avstamning eller vandøde)."}, {"cls": "bard", "text": "<b>Faerie Fire<\/b> gir fordel (advantage) på angrep mot de berørte – sterkt når resten av gruppa skyter. Krever konsentrasjon."}, {"cls": "notbard", "text": "Spar de sterkeste evnene til trusselen som faktisk er farlig (bueskyttere/ledere), ikke de første fiendene du ser."}], "cards": []}, {"id": "grove", "act": "Akt 1", "title": "Inne i Emerald Grove", "summary": "Lunden er et knutepunkt med handelsfolk, sidetråder og mye dialog – barden trives her.", "basics": ["Druiden <b>Kagha<\/b> holder en tiefling-jente (Arabella) fanget. Du kan ofte løse det med Persuasion, Intimidation eller Insight.", "Handelsfolk: blant annet smeden Dammon og tiefling-handlere. Sjekk butikkene etter brukbart utstyr og trylleruller.", "Tiefling-barden <b>Alfira<\/b> sitter ved en klippe over det hellige bassenget og sliter med en sang."], "tips": [{"cls": "bard", "text": "<b>Hjelp Alfira:<\/b> en Performance-sjekk sammen med henne kan gi deg en lut som takk. Ikke-barder som lykkes, lærer også å spille instrumenter (instrumentferdighet)."}, {"cls": "bard", "text": "<b>Cap of Curing<\/b> (tidlig bard-lue): i en låst forgylt kiste bak en søyle nær Alfiras plass. Når du gir Bardic Inspiration, helbreder den også målet 1d6."}, {"cls": "bard", "text": "<b>Perform for publikum:<\/b> lunden har mange tilhørere. DC for tips øker med publikumsstørrelsen (10 for én tilhører, 20 for åtte eller flere)."}, {"cls": "bard", "text": "Gi en følgesvenn <b>Bardic Inspiration<\/b> før de skal snakke eller dirke: den varer til lange hvil og legges på neste angrep, evnesjekk eller redningskast."}], "cards": [{"kind": "story", "pro": "notdu", "title": "Hvorfor Alfira er verdt å bry seg om", "html": "<p>Alfira dukker opp igjen senere. Lever hun og du hjelper henne mot slutten av akt 2, kan barden få en unik, kraftigere <i>Bardic Inspiration<\/i> (d12) én gang per lange hvil.<\/p>"}]}, {"id": "village", "act": "Akt 1", "title": "Blighted Village og vindmøllen", "summary": "En forlatt landsby med goblin-bakhold, en gnom fastspent på vindmøllen og en kjeller å utforske.", "basics": ["Ved inngangen venter goblins som vil snakke – Deception, Persuasion eller Intimidation kan unngå (eller utsette) kamp.", "Gnomen <b>Barcus Wroot<\/b> er bundet til vindmøllen. Redd ham for en tråd som henger sammen med Grymforge senere.", "Owlbear-hulen i nærheten er farlig på lavt nivå – vent til du er sterkere.", {"hideOrigin": "karlach", "text": "<b>Karlach<\/b> finner du i området rundt Risen Road, jaget av en gruppe som kaller seg paladiner. Hør begge sider før du bestemmer deg."}], "tips": [{"cls": "bard", "text": "<b>Dissonant Whispers<\/b>: 3d6 psykisk skade (halv ved vellykket redningskast) og målet blir skremt (Frightened) i 2 turer – kan ikke bevege seg og har ulempe på angrep og evnesjekker."}, {"cls": "bard", "text": "Snik dere i posisjon og start kampen med et overraskelsesangrep, så får barden kastet <i>Faerie Fire<\/i> eller <i>Sleep<\/i> før fiendene rekker å reagere."}], "cards": [{"kind": "build", "cls": "bard", "title": "Nivå 3: velg College", "html": "<p>Du når ofte nivå 3 rundt her. Se <a href=\"#bard-subclass\">Bard-sporet → Undervalg<\/a> for sammenligning. Kort sagt: <b>Lore<\/b> for støtte og ferdigheter, <b>Valour<\/b>/<b>Swords<\/b> for nærkamp-hybrid, <b>Glamour<\/b> for midlertidige HP til hele gruppa.<\/p>"}]}, {"id": "goblincamp", "act": "Akt 1", "title": "Goblinleiren (Shattered Sanctum)", "summary": "Hovedmålet i første del av akt 1: tre ledere, mye dialog og et av spillets første store veivalg.", "basics": ["Du kan gå inn fredelig ved å snakke deg forbi vaktene. Inne finner du de tre lederne: <b>Priestess Gut<\/b>, <b>Dror Ragzlin<\/b> og <b>Minthara<\/b>.", "Bardeforfatteren <b>Volo<\/b> sitter fanget i leiren – å redde ham gir en belønning.", "Lagre før du gjør noe dramatisk her. Kamp inne i tempelet kan raskt involvere svært mange fiender."], "tips": [{"cls": "bard", "text": "Høy Charisma åpner mange dører her: snakk deg inn, lur lederne til å møte deg alene, og bruk <i>Friends<\/i> (fordel på Charisma-sjekker mot en ikke-fiendtlig skapning) før viktige samtaler."}, {"cls": "bard", "text": "Belønningen for å redde Volo er <b>Blazer of Benevolence<\/b>: du får 4 midlertidige HP hver gang du gir Bardic Inspiration."}], "cards": [{"kind": "story", "title": "Det store valget: lunden eller goblinene", "html": "<p>Velger du å hjelpe goblinene med å angripe Emerald Grove, dør mange av tieflingene (blant dem Alfira), og <b>Wyll og Karlach forlater deg / blir ikke med<\/b>. Minthara kan da bli følgesvenn senere. Å forsvare lunden er den «klassiske» førstegangsruten og gir en stor fest i leiren.<\/p>"}]}, {"id": "onward", "act": "Videre", "title": "Underdark, fjellpasset og veien mot akt 2", "summary": "Akt 1 har to veier videre. Gjør unna det du vil i akt 1 først – overgangen er et punkt uten retur.", "basics": ["<b>Underdark<\/b> (bl.a. via landsbyen eller tempelet under goblinleiren) eller <b>Mountain Pass<\/b> (mot klosteret Rosymorn). Begge fører til akt 2.", "Spillet advarer deg før du forlater akt 1 for godt. Fullfør sidetråder du bryr deg om før det."], "tips": [{"cls": "bard", "text": "<b>Phalar Aluve<\/b> (Underdark, nær Selûne-utposten): et syngende langsverd med +1 Performance og en «Sing/Shriek»-evne. Krever en Religion- eller Strength-sjekk. Bra for Valour/Swords."}, {"cls": "bard", "text": "<b>Wondrous Gloves<\/b> (Grymforge, fra en mimic): +1 AC og én ekstra Bardic Inspiration."}], "cards": []}], "bard": [{"id": "bard-core", "title": "Kjerneferdigheter", "basics": ["<b>Bardic Inspiration<\/b> (nivå 1): <i>bonushandling<\/i>, 18 m rekkevidde. Gir en alliert +1d6 på neste angrep, evnesjekk eller redningskast. Effekten varer til lange hvil. 3 ladninger på nivå 1, 4 på nivå 5 og 5 på nivå 8. Terningen blir d8 på nivå 5 og d10 på nivå 10.", "<b>Font of Inspiration<\/b> (nivå 5): Bardic Inspiration lades også på <i>korthvil<\/i>, ikke bare lange hvil. Bruk dem fritt!", "<b>Jack of All Trades<\/b> (nivå 2): halv ferdighetsbonus (rundet ned) på evnesjekker du ikke er trent i.", "<b>Song of Rest<\/b> (nivå 2): handling utenfor kamp – hele gruppa får effekten av et korthvil. Én gang per lange hvil.", "<b>Expertise<\/b> (nivå 3 og 10): dobbel ferdighetsbonus i to ferdigheter du er trent i. Persuasion er nesten alltid riktig.", "<b>Countercharm<\/b> (nivå 6): du og allierte innen 9 m får fordel på redningskast mot Charmed og Frightened."], "cards": [{"kind": "build", "title": "Slik får du mest ut av Bardic Inspiration", "html": "<ul><li>Siden den varer til lange hvil, kan du gi den <i>før<\/i> kampen eller samtalen – én ladning per alliert.<\/li><li>Ikke stable: en alliert som allerede har inspirasjon, kan ikke få en til.<\/li><li>Med Cap of Curing helbreder den 1d6, og med Blazer of Benevolence får barden 4 midlertidige HP – kombinasjonen gjør en «gratis» bonushandling til både støtte og forsvar.<\/li><li>Før nivå 5 er ladningene knappe (lange hvil). Etter nivå 5 bør du bruke dem nesten hver kamp.<\/li><\/ul>"}]}, {"id": "bard-spells", "title": "Trylleformularer og gode tidlige valg", "basics": ["<b>Vicious Mockery<\/b> (cantrip): psykisk skade (Wisdom-redningskast) og målet får ulempe på neste angrep. Bardens standardangrep.", "<b>Friends<\/b> (cantrip): fordel på Charisma-sjekker mot en ikke-fiendtlig skapning – kast den før viktige samtaler.", "<b>Healing Word<\/b>: bonushandling, 18 m, 1d4 + Charisma-modifikator. Beste måten å reise opp falne allierte på.", "<b>Dissonant Whispers<\/b>: 3d6 psykisk, målet blir skremt (kan ikke bevege seg, ulempe på angrep) i 2 turer.", "<b>Faerie Fire<\/b>: fiender i et område gir fordel på angrep mot seg. Konsentrasjon.", "<b>Sleep<\/b>: legger fiender med til sammen inntil 24 HP i søvn. Sterk helt tidlig, svakere når fiendene får mer HP.", "<b>Thunderwave<\/b>: torden-skade rundt deg og dytter fiender bort – flott mot klynger og ved kanter.", "Andre gode tidlige: <i>Tasha's Hideous Laughter<\/i>, <i>Heroism<\/i>, <i>Bane<\/i>."], "cards": [{"kind": "build", "title": "Anbefalt progresjon (nivå 3–6)", "html": "<ul><li><b>Nivå 3 (nivå 2-formularer):<\/b> <i>Hold Person<\/i> (lammer humanoider), <i>Shatter<\/i> (område-skade), <i>Silence<\/i> (stopper fiendtlige trollmenn), <i>Invisibility<\/i>, <i>Enhance Ability<\/i> (Eagle's Splendour = fordel på Charisma-sjekker).<\/li><li><b>Nivå 5 (nivå 3-formularer):<\/b> <i>Hypnotic Pattern<\/i> er en av spillets beste kontrollformularer; <i>Glyph of Warding<\/i> og <i>Fear<\/i> er også gode.<\/li><li>Husk at du kan bytte ut én formular hver gang du går opp i nivå – <i>Sleep<\/i> er en god kandidat å bytte bort etter hvert.<\/li><li>Konsentrasjon: du kan bare holde én konsentrasjonsformular. Ikke kast Faerie Fire og Hold Person samme tur.<\/li><\/ul>"}]}, {"id": "bard-subclass", "title": "Undervalg (College) på nivå 3", "basics": ["<b>College of Lore:<\/b> tre ekstra ferdigheter og <i>Cutting Words<\/i> (reaksjon som bruker inspirasjonsterningen til å svekke en fiendes kast). Nivå 6: <i>Magical Secrets<\/i> – to formularer fra andre klasser.", "<b>College of Valour:<\/b> medium rustning, skjold og alle krigsvåpen. <i>Combat Inspiration<\/i> lar allierte bruke inspirasjonen på skade eller AC. Nivå 6: Extra Attack.", "<b>College of Swords:<\/b> medium rustning og scimitarer, en kampstil (Duelling eller Two-Weapon Fighting) og <i>Blade Flourish<\/i> (forsvar, ekstra mål eller dytt). Nivå 6: Extra Attack.", "<b>College of Glamour<\/b> (kom i Patch 8, 2025): <i>Mantle of Inspiration<\/i> – bonushandling som gir 2 allierte 5 midlertidige HP og sjarmerer fiender som treffer dem i nærkamp. Nivå 6: <i>Mantle of Majesty<\/i> (gjentatt Command)."], "cards": [{"kind": "build", "title": "Hvilket College bør nybegynnere velge?", "html": "<ul><li><b>Lore<\/b> – tryggest hvis barden skal være støtte og «ansikt»: flest ferdigheter, og Magical Secrets på nivå 6 gir tilgang til formularer fra andre klasser.<\/li><li><b>Glamour<\/b> – enklest å bruke godt: én bonushandling beskytter flere allierte.<\/li><li><b>Swords/Valour<\/b> – hvis du vil kjempe med våpen selv. Prioriter da Dexterity (Swords) eller Strength/Dexterity med skjold (Valour).<\/li><\/ul>"}]}, {"id": "bard-face", "title": "Charisma, dialog og ferdighetssjekker", "basics": ["Persuasion, Deception, Intimidation og Performance er alle Charisma-baserte. Med høy Charisma og Expertise blir barden gruppas beste talsperson.", "Den som starter samtalen, er den som slår terningen. Bytt til barden før du snakker med viktige NPC-er.", "Forberedelse hjelper: <i>Guidance<\/i> (+1d4, fra en cleric/druid), <i>Friends<\/i> (fordel) og Bardic Inspiration (+terning) kan legges oppå hverandre."], "cards": [{"kind": "build", "title": "Maks dialogsjanse", "html": "<ul><li>Ta Expertise i <b>Persuasion<\/b> (og gjerne Deception eller Intimidation).<\/li><li><i>Enhance Ability<\/i> (Eagle's Splendour) gir fordel på Charisma-sjekker i lengre tid – ett trylleformular dekker mange samtaler.<\/li><li>Øk Charisma med nivå 4-feat (Ability Improvement).<\/li><\/ul>"}]}, {"id": "bard-perform", "title": "Perform og instrumenter", "basics": ["Utstyr et instrument og bruk <b>Perform<\/b> (fri handling). NPC-er i nærheten samles for å høre på.", "Med instrumentferdighet slår du en Performance-sjekk: DC 10 (én tilhører), 12 (2–3), 15 (4–5), 18 (6–7), 20 (8+). Lykkes du, kaster publikum gull.", "Uten instrumentferdighet blir det en dårlig opptreden, og publikum går. Barder har ferdigheten automatisk; andre kan få den ved å opptre med Alfira eller med featen Performer.", "Har du ferdigheten men ikke noe instrument, plystrer du i stedet. Flere i gruppa kan spille sammen.", "Prestasjonen <i>Busker<\/i> får du ved å tjene 100 gull på musikk i én gjennomspilling."], "cards": [{"kind": "build", "title": "Instrumenter verdt å vite om", "html": "<p>Startinstrumentene er kosmetiske. Det finnes også unike instrumenter (f.eks. <i>Lihala's Lute<\/i>, <i>Alfira's Lute<\/i> og <i>Lute of the Merryweather Bard<\/i>), men utstyret ditt betyr mer i kamp. Ikke la et instrument ta plassen til en bedre gjenstand.<\/p>"}]}, {"id": "bard-gear", "title": "Tidlig utstyr for barden", "basics": ["Barden kan bruke lett rustning, enkle våpen, hand crossbow, rapier, langsverd og kortsverd. Start med hand crossbow og en rapier.", "Velg lett rustning med god AC for Dexterity-bygget ditt. Valour/Swords får medium rustning på nivå 3."], "cards": [{"kind": "build", "title": "Konkrete gjenstander i akt 1", "html": "<ul><li><b>Cap of Curing<\/b> – Emerald Grove, låst forgylt kiste nær Alfira. Bardic Inspiration helbreder 1d6.<\/li><li><b>Blazer of Benevolence<\/b> – belønning for å redde Volo i goblinleiren. +4 midlertidige HP når du inspirerer.<\/li><li><b>The Whispering Promise<\/b> (ring) – kan kjøpes av handelsfolk i akt 1. Helbreding gir målet +1d4 på angrep og redningskast.<\/li><li><b>Wondrous Gloves<\/b> – Grymforge (Underdark-ruten). +1 AC og én ekstra Bardic Inspiration.<\/li><li><b>Phalar Aluve<\/b> – Underdark, sverd i en stein. For våpenbarder.<\/li><\/ul>"}]}, {"id": "bard-party", "title": "Barden i gruppa og i kamp", "basics": ["<b>Støtte:<\/b> Bardic Inspiration og Healing Word er bonushandlinger – barden kan støtte <i>og<\/i> gjøre noe annet samme tur.", "<b>Kontroll:<\/b> Sleep, Dissonant Whispers, Hold Person og Hypnotic Pattern vinner kamper ved å slå ut fiender.", "<b>Ansikt:<\/b> barden tar dialogen og kan dekke mange ferdighetssjekker med Jack of All Trades.", "<b>Avstand:<\/b> stå bak frontlinjen og bruk hand crossbow eller Vicious Mockery.", "Hold barden bak tankene – lavt HP og lett rustning gjør den sårbar i nærkamp (unntatt Valour/Swords)."], "cards": [{"kind": "build", "title": "Forslag til gruppe med bard", "html": "<p>En balansert gruppe: <b>bard<\/b> (støtte/ansikt) + <b>Lae'zel<\/b> eller <b>Karlach<\/b> (frontlinje) + <b>Shadowheart<\/b> (helbreding/støtte) + <b>Astarion<\/b> (låser, feller, skade) eller <b>Gale<\/b> (område-magi). Med en Lore-bard og Astarion trenger du sjelden flere ferdighetsdekninger.<\/p><p>Avhengig av hvem du spiller som, bytter du ut den aktuelle følgesvennen.<\/p>"}]}]};
+const DU_B64 = "eyJzdGFydCI6IHsidGlwcyI6IFtdLCAiY2FyZHMiOiBbeyJraW5kIjogImR1IiwgInRpdGxlIjogIkh2YSBEYXJrIFVyZ2UgYmV0eXIgaSBwcmFrc2lzIiwgImh0bWwiOiAiPHA+RHUgZsOlciBqZXZubGlnIMKrdHJhbmfCuyAodXJnZXMpIGkgZGlhbG9nIOKAkyBtw7hya2UgdmFsZyBkdSBrYW4gZ2kgZXR0ZXIgZm9yIGVsbGVyIG1vdHN0w6UuIE1hbmdlIGF2IGRlbSBrYW4gZsOlIGFsdm9ybGlnZSwgcGVybWFuZW50ZSBmw7hsZ2VyIGZvciBOUEMtZXIgb2cgZsO4bGdlc3Zlbm5lci4gRGV0IGZpbm5lcyBlbiBsYW5nIHZlaSBkZXIgZHUgbW90c3TDpXIsIG9nIGVuIGRlciBkdSBvbWZhdm5lciBhcnZlbiBkaW4uPC9wPiJ9XX0sICJiZWFjaCI6IHsidGlwcyI6IFtdLCAiY2FyZHMiOiBbeyJraW5kIjogImR1IiwgInRpdGxlIjogIkxpa2V0IHZlZCBzdHJhbmRlbiIsICJodG1sIjogIjxwPlVuZGVyc8O4a2VyIGR1IGxpa2V0IGF2IGRlbiBsZW1sZXN0ZWRlIGZpc2tlcmVuIChNYW5nbGVkIEZpc2hlcikgbGlrZSBldHRlciBrcmFzamV0LCBzbWlsZXIga2FyYWt0ZXJlbiBkaW4g4oCTIG9nIGVuIGVua2VsIEludGVsbGlnZW5jZS1zamVrayAoREMgNykgZ2lyIGdsaW10IGF2IHR1c2VuIGTDuGRlLiBGw7hyc3RlIGhpbnQgb20gaHZlbSBkdSB2YXIuPC9wPiJ9XX0sICJjYW1wIjogeyJ0aXBzIjogW10sICJjYXJkcyI6IFt7ImtpbmQiOiAiZHUiLCAidGl0bGUiOiAiRHLDuG1tZW5lIiwgImh0bWwiOiAiPHA+RXR0ZXIgZGUgZsO4cnN0ZSBsYW5nZSBodmlsZW5lIGbDpXIgZHUgYmxvZGlnZSBkcsO4bW1lciBvZyBlbiBteXN0aXNrIHN0ZW1tZS4gRGV0IGVyIHN0YXJ0ZW4gcMOlIGRpbiBwZXJzb25saWdlIHRyw6VkLCA8aT5UaGUgVXJnZTwvaT4uPC9wPiJ9XX0sICJncm92ZSI6IHsidGlwcyI6IFtdLCAiY2FyZHMiOiBbeyJraW5kIjogImR1IiwgInRpdGxlIjogIkFsZmlyYSBvZyBkZW4gZsO4cnN0ZSBuYXR0ZW4gKFNUT1Igc3BvaWxlcikiLCAiaHRtbCI6ICI8cD5WZWQgZsO4cnN0ZSBsYW5nZSBodmlsIGV0dGVyIGF0IGR1IGhhciBuw6VkZCBsdW5kZW4tb21yw6VkZXQsIGtvbW1lciBBbGZpcmEgdGlsIGxlaXJlbiBvZyB2aWwgYmxpIG1lZC4gVWFuc2V0dCBodmEgZHUgc3ZhcmVyLCB2w6VrbmVyIGR1IG92ZXIgbGlrZXQgaGVubmVzIG1lZCBibG9kIHDDpSBoZW5kZW5lLiBEdSBrYW4gcHLDuHZlIMOlIHNranVsZSBsaWtldCAoU3RlYWx0aCksIHZhc2tlIGRlZywgZWxsZXIgbcO4dGUgZGUgYW5kcmUg4oCTIGbDuGxnZXN2ZW5uZW5lIHJlYWdlcmVyIChBc3RhcmlvbiBlciBkZW4gZW5lc3RlIHNvbSBpa2tlIG1pc2xpa2VyIGRldCkuPC9wPjxwPjxiPlZpbCBkdSByZWRkZSBoZW5uZTo8L2I+IHNsw6UgcMOlIDxpPk5vbi1MZXRoYWwgQXR0YWNrczwvaT4gKFBhc3NpdmVzKSBvZyBzbMOlIEFsZmlyYSBiZXZpc3N0bMO4cyBpIGx1bmRlbiA8dT5mw7hyPC91PiBkZW4gbGFuZ2UgaHZpbGVuLiBEYSBrb21tZXIgZW4gYW5uZW4gYmFyZCAoUXVpbCkgaSBzdGVkZXQuIEFsZmlyYSBsZXZlciB2aWRlcmUg4oCTIG9nIGthbiBnaSBiYXJkZW4gZW4gc3RlcmsgYmVsw7hubmluZyBpIGFrdCAyLjwvcD48cD5FdHRlcnDDpSBkdWtrZXIgZW4gdWh5Z2dlbGlnIMKrYnV0bGVywrssIDxiPlNjZWxlcml0YXMgRmVsPC9iPiwgb3BwIGkgbGVpcmVuLjwvcD4ifV19LCAib253YXJkIjogeyJ0aXBzIjogW10sICJjYXJkcyI6IFt7ImtpbmQiOiAiZHUiLCAidGl0bGUiOiAiQWt0IDI6IElzb2JlbCBvZyBiZWzDuG5uaW5nZW4gKFNUT1Igc3BvaWxlcikiLCAiaHRtbCI6ICI8cD5CdXRsZXJlbiB2aWwgYXQgZHUgc2thbCBkcmVwZSBrbGVyaWtlcmVuIDxiPklzb2JlbDwvYj4gdmVkIExhc3QgTGlnaHQgSW5uLiBHasO4ciBkdSBkZXQsIGbDpXIgZHUgU2xheWVyLWZvcm1lbiwgbWVuIGRldCBmw6VyIHN0b3JlIGtvbnNla3ZlbnNlciBmb3Igb21yw6VkZXQgb2cgZsO4bGdlc3Zlbm5lbmUuIER1IGthbiBsYSB2w6ZyZSDigJMgZGV0IGVyIGV0IGhlbHQgZ3lsZGlnIHZhbGcsIG9nc8OlIGZvciBlbiBEYXJrIFVyZ2UtZ2plbm5vbXNwaWxsaW5nLjwvcD4ifV19fQ==";
+(function(){
+'use strict';
+const KEY='bg3guide.v1';
+const KINDS={build:'Bygg/optimalisering',story:'Historiekonsekvenser',du:'Dark Urge-hendelser'};
+const COMPANIONS=[
+  {id:'shadowheart',text:'<b>Shadowheart</b> – like ved vraket.'},
+  {id:'astarion',text:'<b>Astarion</b> – nær krasjstedet («noen trenger hjelp …»). Han er ikke helt den han gir seg ut for.'},
+  {id:'gale',text:'<b>Gale</b> – ved waypointet på Roadside Cliffs: en hånd stikker ut av en runeportal.'},
+  {id:'laezel',text:'<b>Lae\u2019zel</b> – på Roadside Cliffs, fanget i et bur av to tieflinger.'}
+];
+let state=load();
+let revealed={};          // per-økt «vis denne»-avsløringer
+let duCache=null;
+
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.pro)return Object.assign({show:{},done:{},bardForce:false},s);}catch(e){}return null;}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function $(id){return document.getElementById(id);}
+
+// Dark Urge-innhold dekodes kun for Dark Urge-spillere, så det aldri havner i siden ellers.
+function du(){
+  if(state.pro!=='du')return {};
+  if(!duCache){const bin=atob(DU_B64);const bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);duCache=JSON.parse(new TextDecoder('utf-8').decode(bytes));}
+  return duCache;
+}
+function proOk(p){if(!p||p==='all')return true;if(p==='notdu')return state.pro!=='du';return p===state.pro;}
+function clsOk(c){if(!c||c==='any')return true;if(c==='bard')return state.cls==='bard';if(c==='notbard')return state.cls!=='bard';return c===state.cls;}
+function visible(it){
+  if(typeof it==='string')return true;
+  if(it.hideOrigin&&state.pro==='origin'&&state.origin===it.hideOrigin)return false;
+  return proOk(it.pro)&&clsOk(it.cls);
+}
+function txt(it){return typeof it==='string'?it:it.text;}
+function proName(){if(state.pro==='du')return 'The Dark Urge';if(state.pro==='origin')return (DATA.origins[state.origin]||{}).name||'Opprinnelse';return 'Egen karakter';}
+function clsName(){return (DATA.classes[state.cls]||['?'])[0];}
+
+function fill(t){
+  return t.replace('{companions}',()=>{
+    const list=COMPANIONS.filter(c=>!(state.pro==='origin'&&state.origin===c.id));
+    return '<ul>'+list.map(c=>'<li>'+c.text+'</li>').join('')+'</ul>';
+  }).replace('{wyll}',()=> (state.pro==='origin'&&state.origin==='wyll')
+     ? 'Som Wyll er du selv «Blade of Frontiers» – tieflingene kjenner ryktet ditt.'
+     : 'En kriger, <b>Wyll</b>, kjemper ved porten. Snakk med ham inne i lunden for å få ham med.');
+}
+
+function renderTip(t){
+  const isDu=t.pro==='du', isBard=t.cls==='bard';
+  const tag=isDu?'<span class="tag du">Dark Urge</span>':isBard?'<span class="tag bard">Bard</span>':'';
+  return '<div class="tip'+(isDu?' du':isBard?' bard':'')+'">'+tag+t.text+'</div>';
+}
+function renderCard(c,key){
+  if(c.kind==='du'&&state.pro!=='du')return '';
+  const label=KINDS[c.kind];
+  const open=state.show[c.kind]||revealed[key];
+  if(open){
+    return '<div class="card '+c.kind+'"><div class="ch"><span class="tag '+c.kind+'">'+label+'</span><strong>'+c.title+'</strong>'+
+      (revealed[key]&&!state.show[c.kind]?'<button data-hide="'+key+'">Skjul</button>':'')+'</div><div class="cb">'+c.html+'</div></div>';
+  }
+  // Låst: for historie/Dark Urge vises ikke engang tittelen (den kan avsløre noe).
+  const hint=c.kind==='build'?'<strong>'+c.title+'</strong>':'<span class="muted">Skjult spoiler – innholdet vises ikke før du ber om det.</span>';
+  return '<div class="card locked '+c.kind+'"><div class="ch"><span class="tag '+c.kind+'">'+label+'</span>'+hint+'<button data-reveal="'+key+'">Vis denne</button></div></div>';
+}
+
+function renderNode(n){
+  const extra=du()[n.id]||{tips:[],cards:[]};
+  const basics=n.basics.filter(visible).map(b=>'<li>'+fill(txt(b))+'</li>').join('');
+  const tips=n.tips.filter(visible).concat(extra.tips.map(t=>Object.assign({pro:'du'},t)).filter(visible));
+  const cards=n.cards.filter(visible).concat(extra.cards.filter(visible));
+  const done=!!state.done[n.id];
+  return '<section class="node'+(done?' done':'')+'" id="'+n.id+'">'+
+    '<div class="node-head"><div style="flex:1"><div class="act">'+esc(n.act)+'</div><h3>'+esc(n.title)+'</h3></div>'+
+    '<label class="toggle done-toggle"><input type="checkbox" data-done="'+n.id+'"'+(done?' checked':'')+'> Ferdig</label></div>'+
+    '<p class="summary">'+n.summary+'</p>'+
+    (basics?'<h4>Det viktigste</h4><ul>'+basics+'</ul>':'')+
+    (tips.length?'<h4>Tips for deg</h4>'+tips.map(renderTip).join(''):'')+
+    (cards.length?'<h4>Spoilerkort</h4>'+cards.map((c,i)=>renderCard(c,n.id+':'+i)).join(''):'')+
+  '</section>';
+}
+
+function renderBard(){
+  const el=$('bard');
+  const isBard=state.cls==='bard';
+  let h='<section class="node" id="bard-track"><div class="act">Klassespor</div><h3>Bard-sporet</h3>';
+  if(!isBard&&!state.bardForce){
+    h+='<p class="notice">Du har valgt <b>'+esc(clsName())+'</b>, så bard-sporet er skjult. <button id="showBard">Vis likevel</button></p></section>';
+    el.innerHTML=h;$('navBard').innerHTML='<li style="color:var(--muted);font-size:.9rem">Skjult (ikke bard)</li>';return;
+  }
+  h+='<p class="summary">Grunnmekanikken er synlig. Byggtips og optimalisering ligger i spoilerkort.'+(!isBard?' <button id="hideBard">Skjul igjen</button>':'')+'</p></section>';
+  h+=DATA.bard.map(s=>'<section class="node" id="'+s.id+'"><div class="act">Bard</div><h3>'+esc(s.title)+'</h3><ul>'+
+     s.basics.map(b=>'<li>'+b+'</li>').join('')+'</ul>'+
+     (s.cards.length?'<h4>Spoilerkort</h4>'+s.cards.map((c,i)=>renderCard(c,s.id+':'+i)).join(''):'')+'</section>').join('');
+  el.innerHTML=h;
+  $('navBard').innerHTML=DATA.bard.map(s=>'<li><a href="#'+s.id+'">'+esc(s.title)+'</a></li>').join('');
+}
+
+function renderToggles(target,prefix){
+  const isDu=prefix==='s'?setupPro()==='du':!!(state&&state.pro==='du');
+  const kinds=['build','story'].concat(isDu?['du']:[]);
+  const src=prefix==='s'?setupShow:state.show;
+  $(target).innerHTML=kinds.map(k=>'<label class="toggle"><input type="checkbox" data-'+prefix+'kind="'+k+'"'+(src[k]?' checked':'')+'> Vis '+KINDS[k].toLowerCase()+'</label>').join('');
+}
+
+function render(){
+  if(!state){return;}
+  $('chipPro').innerHTML='Hovedperson: <b>'+esc(proName())+'</b>';
+  $('chipPro').classList.toggle('du',state.pro==='du');
+  $('chipCls').innerHTML='Klasse: <b>'+esc(clsName())+'</b>';
+  const cd=DATA.classes[state.cls];
+  let intro='<b>Velkommen!</b> Du følger guiden som <b>'+esc(proName())+'</b> ('+esc(clsName())+'). ';
+  intro+=esc(cd?cd[1]:'')+' ';
+  if(state.pro==='origin'){const o=DATA.origins[state.origin];if(o&&o.cls!==state.cls)intro+='Merk: '+esc(o.name)+' er normalt '+esc(DATA.classes[o.cls][0])+', men du kan velge en annen klasse i karakterskapingen. ';}
+  intro+='Grunnleggende info vises alltid; dypere tips og historiespoilere åpner du med bryterne i menyen eller med «Vis denne» på hvert kort.';
+  $('intro').innerHTML=intro;
+  $('nodes').innerHTML=DATA.nodes.map(renderNode).join('');
+  $('navNodes').innerHTML=DATA.nodes.map(n=>'<li class="'+(state.done[n.id]?'done':'')+'"><input type="checkbox" aria-label="Ferdig: '+esc(n.title)+'" data-done="'+n.id+'"'+(state.done[n.id]?' checked':'')+'><a href="#'+n.id+'">'+esc(n.title)+'</a></li>').join('');
+  renderBard();
+  renderToggles('spoilerToggles','m');
+  const total=DATA.nodes.length, d=DATA.nodes.filter(n=>state.done[n.id]).length;
+  $('progBar').style.width=(100*d/total)+'%';$('progTxt').textContent=d+' av '+total+' scener ferdig';
+}
+
+// ---------- oppsett ----------
+let setupShow={};
+function setupPro(){const r=document.querySelector('input[name=pro]:checked');return r?r.value:null;}
+function openSetup(first){
+  setupShow=Object.assign({},state?state.show:{});
+  const pro=state?state.pro:null;
+  document.querySelectorAll('input[name=pro]').forEach(r=>r.checked=(r.value===pro));
+  $('originSel').value=state&&state.origin||'astarion';
+  $('clsSel').value=state&&state.cls||'bard';
+  $('originRow').style.display=pro==='origin'?'flex':'none';
+  $('cancelBtn').style.display=first?'none':'inline-block';
+  $('setupErr').textContent='';
+  updateClsDesc();renderToggles('setupToggles','s');
+  $('setup').classList.add('open');
+  setTimeout(()=>{const f=document.querySelector('input[name=pro]:checked')||document.querySelector('input[name=pro]');f&&f.focus();},0);
+}
+function closeSetup(){$('setup').classList.remove('open');}
+function updateClsDesc(){const c=DATA.classes[$('clsSel').value];$('clsDesc').textContent=c?c[1]:'';}
+
+function init(){
+  $('originSel').innerHTML=Object.entries(DATA.origins).map(([k,o])=>'<option value="'+k+'">'+esc(o.name)+' (standard: '+esc(DATA.classes[o.cls][0])+')</option>').join('');
+  $('clsSel').innerHTML=Object.entries(DATA.classes).map(([k,c])=>'<option value="'+k+'">'+esc(c[0])+(k==='bard'?' (anbefalt for denne guiden)':'')+'</option>').join('');
+  document.querySelectorAll('input[name=pro]').forEach(r=>r.addEventListener('change',()=>{
+    $('originRow').style.display=setupPro()==='origin'?'flex':'none';
+    if(setupPro()!=='du')delete setupShow.du;
+    renderToggles('setupToggles','s');
+  }));
+  $('clsSel').addEventListener('change',updateClsDesc);
+  $('startBtn').addEventListener('click',()=>{
+    const pro=setupPro();
+    if(!pro){$('setupErr').textContent='Velg en hovedperson først.';return;}
+    const prev=state||{done:{},bardForce:false};
+    const show=Object.assign({},setupShow); if(pro!=='du')delete show.du;
+    state={pro:pro,origin:pro==='origin'?$('originSel').value:null,cls:$('clsSel').value,show:show,done:prev.done||{},bardForce:false};
+    duCache=null;revealed={};save();closeSetup();render();
+  });
+  $('cancelBtn').addEventListener('click',closeSetup);
+  $('changeBtn').addEventListener('click',()=>openSetup(false));
+  $('resetBtn').addEventListener('click',()=>{if(confirm('Nullstille hovedperson, klasse, spoilervalg og fremdrift?')){localStorage.removeItem(KEY);state=null;duCache=null;revealed={};openSetup(true);}});
+  $('menuBtn').addEventListener('click',()=>{const n=$('sidenav');n.classList.toggle('open');$('menuBtn').setAttribute('aria-expanded',n.classList.contains('open'));});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&state&&$('setup').classList.contains('open'))closeSetup();});
+  document.addEventListener('change',e=>{
+    const t=e.target;
+    if(t.dataset.done){state.done[t.dataset.done]=t.checked;save();render();}
+    else if(t.dataset.mkind){state.show[t.dataset.mkind]=t.checked;save();render();}
+    else if(t.dataset.skind){setupShow[t.dataset.skind]=t.checked;}
+  });
+  document.addEventListener('click',e=>{
+    const t=e.target;
+    if(t.dataset.reveal){revealed[t.dataset.reveal]=true;render();}
+    else if(t.dataset.hide){delete revealed[t.dataset.hide];render();}
+    else if(t.id==='showBard'){state.bardForce=true;save();render();}
+    else if(t.id==='hideBard'){state.bardForce=false;save();render();}
+  });
+  if(state){render();}else{openSetup(true);}
+}
+init();
+})();
+</script>
+</body>
+</html>
