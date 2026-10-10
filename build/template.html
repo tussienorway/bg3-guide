@@ -217,6 +217,7 @@ function clsOk(c){if(!c||c==='any')return true;if(c==='bard')return state.cls===
 function visible(it){
   if(typeof it==='string')return true;
   if(it.hideOrigin&&state.pro==='origin'&&state.origin===it.hideOrigin)return false;
+  if(it.onlyOrigin&&!(state.pro==='origin'&&state.origin===it.onlyOrigin))return false;
   return proOk(it.pro)&&clsOk(it.cls);
 }
 function txt(it){return typeof it==='string'?it:it.text;}
@@ -440,7 +441,8 @@ function buildSyn(){
     ['hvil','hvile','rest'],
     ['hurtigtast','hurtigtaster','hotkey','keybind','keybinds'],
     ['besvergelse','besvergelser','spell','spells','formular','formularer','trylleformular','trylleformularer'],
-    ['kart','map','maps']
+    ['kart','map','maps'],
+    ['følgesvenn','følgesvenner','companion','companions','npc','partymedlem','partymedlemmer','rekruttere','rekrutter','rekruttering']
   ];
   const map=new Map();
   groups.forEach(g=>{
@@ -581,11 +583,13 @@ function buildIndex(){
   DATA.guides.forEach(g=>{
     indexBlock(list, g.id, g.title, [plain(g.summary)], false);
     g.sections.forEach(s=>{
+      const extra=state.pro==='du'?(du()[s.id]||{tips:[],cards:[]}):{tips:[],cards:[]};
       const bits=[plain(s.summary), plain(s.label)];
       (s.basics||[]).filter(visible).forEach(b=>bits.push(plain(fill(txt(b)))));
       (s.tips||[]).filter(visible).forEach(t=>bits.push(plain(fill(t.text))));
+      (extra.tips||[]).forEach(t=>{const tip=Object.assign({pro:'du'},t); if(visible(tip)) bits.push(plain(fill(tip.text)));});
       indexBlock(list, s.id, s.title, bits, false);
-      indexCards(list, s.id, s.cards, [], s.title, false);
+      indexCards(list, s.id, s.cards, extra.cards, s.title, false);
     });
   });
   if(DATA.maps){
@@ -761,14 +765,15 @@ function renderNode(n){
 }
 
 function renderSection(s,actLabel){
+  const extra=du()[s.id]||{tips:[],cards:[]};
   const basics=(s.basics||[]).filter(visible).map(b=>'<li>'+fill(txt(b))+'</li>').join('');
-  const tips=(s.tips||[]).filter(visible);
+  const tips=(s.tips||[]).filter(visible).concat((extra.tips||[]).map(t=>Object.assign({pro:'du'},t)).filter(visible));
   const lt=s.ordered?'ol class="num"':'ul', lc=s.ordered?'ol':'ul';
   return '<section class="node" id="'+s.id+'"><div class="act">'+esc(actLabel)+(s.label?'<span class="lbl">'+esc(s.label)+'</span>':'')+'</div><h3>'+esc(s.title)+'</h3>'+
     (s.summary?'<p class="summary">'+s.summary+'</p>':'')+
     (basics?'<'+lt+'>'+basics+'</'+lc+'>':'')+
     (tips.length?'<h4>Tips for deg</h4>'+tips.map(renderTip).join(''):'')+
-    renderCardList(s.id, s.cards, [])+'</section>';
+    renderCardList(s.id, s.cards, extra.cards)+'</section>';
 }
 function renderGuides(){
   $('guides').innerHTML=DATA.guides.map(g=>'<section class="node group-head" id="'+g.id+'"><div class="act">Guide</div><h3>'+esc(g.title)+'</h3><p class="summary">'+g.summary+'</p></section>'+
@@ -808,7 +813,7 @@ function render(){
   if(state.pro==='origin'){const o=DATA.origins[state.origin];if(o&&o.cls!==state.cls)intro+='Merk: '+esc(o.name)+' er normalt '+esc(DATA.classes[o.cls][0])+', men du kan velge en annen klasse i karakterskapingen. ';}
   intro+='Grunnleggende info vises alltid; dypere tips og historiespoilere åpner du med bryterne i menyen eller med «Vis denne» på hvert kort.';
   const bardOn=state.cls==='bard'||state.bardForce;
-  intro+='<div class="quick"><a href="#kart">Kart</a>'+(bardOn?'<a href="#bard-play">Bard: tur for tur</a><a href="#bard-levels">Bard: formularer 1–6</a>':'')+
+  intro+='<div class="quick"><a href="#kart">Kart</a><a href="#comp">Følgesvenner</a>'+(bardOn?'<a href="#bard-play">Bard: tur for tur</a><a href="#bard-levels">Bard: formularer 1–6</a>':'')+
     '<a href="#keys">Hurtigtaster</a><a href="#loot">Skjulte ting tidlig</a><a href="#rogue-core">Tyven</a><a href="#wl-core">Warlocken</a><a href="#party-synergy">Samspill</a><a href="#ooc">Utenfor kamp</a><a href="#tips-top">20 nybegynnertips</a></div>';
   $('intro').innerHTML=intro;
   $('nodes').innerHTML=DATA.nodes.map(renderNode).join('');

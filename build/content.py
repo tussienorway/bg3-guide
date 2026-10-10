@@ -3,8 +3,8 @@
 Formater:
   - scene-node: id, act, title, summary, basics[], tips[], cards[]
   - seksjon (bard / guides): id, title, (label), (summary), basics[], tips[], cards[]
-  - tips/basics kan være streng eller {text, cls?, pro?, hideOrigin?}
-  - kort: {kind: build|story|du, title, html, cls?, pro?}
+  - tips/basics kan være streng eller {text, cls?, pro?, hideOrigin?, onlyOrigin?}
+  - kort: {kind: build|story|loot|du, title, html, hint?, cls?, pro?, hideOrigin?, onlyOrigin?}
 """
 import copy
 from content_base import DATA as _BASE, DU
@@ -220,7 +220,7 @@ PARTY = {"id": "party", "nav": "Party-medlemmer", "title": "Party-medlemmer: tyv
    "<b>Warlocken beskytter barden:</b> Repelling Blast dytter nærkjempere bort fra barden og ned fra kanter. Hex på den fienden tyven også går etter, gjør at den dør raskere.",
    "<b>Hvil:</b> warlocken trenger korthvil for å få plassene tilbake, og barden kan gi et ekstra med Song of Rest. Fra nivå 5 lader korthvilene også bardens inspirasjon.",
    "<b>Utenfor kamp:</b> barden snakker (Persuasion), tyven dirker og finner feller, og warlocken med Pact of the Tome gir <i>Guidance</i> før viktige kast.",
-   "<b>Fjerde plass:</b> alle tre har lite HP. En frontkjemper (for eksempel Lae'zel eller Karlach) gir tyven en alliert ved siden av målet, og alle bak frontlinjen får ro til å jobbe. Shadowheart (cleric) er alternativet hvis dere heller trenger helbreding.",
+   "<b>Fjerde plass:</b> alle tre har lite HP. En frontkjemper (for eksempel Lae'zel eller Karlach) gir tyven en alliert ved siden av målet, og alle bak frontlinjen får ro til å jobbe. Shadowheart (cleric) er alternativet hvis dere heller trenger helbreding. Hvem du finner hvor, og hvordan du bytter i leiren: " + L("comp", "Følgesvenner") + ".",
   ],
   "tips": [], "cards": []},
  ]}
@@ -535,6 +535,10 @@ nodes["beach"]["tips"].append({"cls": "any", "text": "Gode tidlige funn her i n�
 nodes["crypt"]["tips"].append({"cls": "any", "text": "En nyttig amulett i krypten: se " + L("loot-crypt", "Skjulte ting tidlig") + "."})
 nodes["grove"]["tips"].append({"cls": "bard", "text": "Bard-hatten og en sterk ring: se " + L("loot-grove", "Skjulte ting tidlig") + "."})
 nodes["village"]["tips"].append({"cls": "any", "text": "Hjelm og dirkeverktøy i landsbyen: se " + L("loot-village", "Skjulte ting tidlig") + "."})
+nodes["nautiloid"]["tips"].append({"cls": "any", "text": "Hvem du kan ha med deg, og hvor: " + L("comp", "Følgesvenner") + "."})
+nodes["beach"]["tips"].append({"cls": "any", "text": "Følgesvennene rundt krasjstedet: " + L("comp", "Følgesvenner") + "."})
+nodes["camp"]["tips"].append({"cls": "any", "text": "Bytte partymedlemmer, Withers og leiesoldater: " + L("comp-swap", "Følgesvenner") + "."})
+nodes["gate"]["tips"].append({"cls": "any", "hideOrigin": "wyll", "text": "Wyll kan bli med inne i lunden. Se " + L("comp-wyll", "Følgesvenner") + "."})
 
 # ------------------------------------------------------------------
 # 7. Skjematiske kart (ingen spillkart-bilder; nåler peker til avsnitt)
@@ -627,6 +631,8 @@ DATA["maps"] = {
     pin(86, 38, "Priestess Gut", "goblincamp"),
     pin(86, 58, "Dror Ragzlin", "goblincamp"),
     pin(78, 74, "Minthara", "goblincamp"),
+    pin(58, 78, "Halsin", "comp-later", "loot", "comp-later:0"),
+    pin(92, 82, "Minthara som følgesvenn", "comp-later", "loot", "comp-later:2"),
     pin(62, 20, "Bow of Awareness (Roah Moonglow)", "loot-goblin", "loot", "loot-goblin:0"),
     pin(24, 80, "Valget: lunden eller goblinene", "goblincamp", "story", "goblincamp:0"),
    ]},
@@ -643,6 +649,7 @@ DATA["maps"] = {
     pin(5, 59, "Overgrown Ruins", "crypt"),
     pin(40, 31, "Emerald Grove", "grove"),
     pin(40, 8, "Risen Road og Waukeen's Rest", "loot-road"),
+    pin(26, 20, "Karlach", "comp-karlach"),
     pin(40, 59, "Blighted Village", "village"),
     pin(76, 59, "Goblinleiren", "goblincamp"),
     pin(76, 8, "Fjellpasset (mot akt 2)", "onward"),
@@ -654,3 +661,271 @@ DATA["maps"] = {
    ]},
  ],
 }
+
+# ------------------------------------------------------------------
+# 8. Følgesvenner (sjekket mot bg3.wiki, Patch 8)
+# Synlige tekster nevner ikke senere følgesvenner ved navn.
+# Nøyaktig sted: loot-kort. Historie, romanse og skjebne: story-kort.
+# Dark Urge-tekster ligger i DU og base64-kodes av build.py.
+# ------------------------------------------------------------------
+MISS = "Noen kan du gå glipp av – vis tips"
+
+def where(origin, text):
+    return {"hideOrigin": origin, "text": text}
+
+def you_are(origin, name):
+    return {"onlyOrigin": origin, "text":
+            "Du spiller selv <b>%s</b>, så du rekrutterer ikke deg selv. Klassen og rollen over gjelder deg. Historien behandler deg fortsatt som den klassen, selv om du valgte en annen i karakterskapingen." % name}
+
+def funn(origin, title, html):
+    return {"kind": "loot", "hideOrigin": origin, "hint": "Nøyaktig sted og hvordan du får dem med", "title": title, "html": html}
+
+def hist(title, html):
+    return {"kind": "story", "hint": MISS, "title": title, "html": html}
+
+COMP = {"id": "comp", "nav": "Følgesvenner",
+ "title": "Følgesvenner – hvem du kan ha med deg og hvor du finner dem",
+ "summary": "Hvem du kan rekruttere, hva slags partymedlem de er ved siden av en bard, en tyv og en warlock, og hvor de er. For de seks første er akt og område alltid synlig. Nøyaktig sted ligger bak plassering av funn. Historie, romanse og skjebne ligger bak historiekonsekvenser. Noen kan du gå glipp av – vis tips. Følgesvenner som kommer senere, er skjult til du åpner kortet: navnet vises ikke på forhånd.",
+ "sections": [
+ {"id": "comp-swap", "label": "Gruppe", "title": "Slik bytter du gruppe",
+  "basics": [
+   "Den aktive gruppa er <b>maks fire</b>: deg og tre andre. Alle andre partymedlemmer venter i leiren.",
+   "Bytte skjer i leiren, ikke ute på veien. Knappen for å gå til leiren bruker ikke leirforsyninger. Lang hvil er et eget valg. Snakk med den du vil ha med, og be noen vente hvis gruppa er full.",
+   "<b>Withers</b> (fra " + L("crypt", "Dank Crypt") + ", se " + L("map-crypt", "kartet") + ") omskolerer for <b>100 gull</b>: klasse, undervalg og evnepoeng. Han vekker følgesvenner som har falt i kamp, for <b>200 gull</b>. Dør noen i en historiescene, er det som regel permanent.",
+   "Fra <b>nivå 3</b> kan Withers også hente leiesoldater (hirelings), 100 gull hver, maks tre om gangen. De har ingen egen historie. Se " + L("comp-hire", "listen") + ".",
+   "Utstyr blir på karakteren når de går til leiren. Du kan bytte fritt mellom kamper.",
+   "Gruppa di (bard, tyv og warlock) har mye kontroll og skade, og lite HP. Den fjerde plassen gjør mest nytte som frontkjemper eller healer.",
+   {"pro": "origin", "text": "Du spiller en opprinnelseskarakter. Den personen møter du ikke som en NPC du kan rekruttere. Under står det hvem du er, der det gjelder."},
+  ],
+  "tips": [
+   {"cls": "bard", "text": "Gi <i>Bardic Inspiration</i> til tyven og frontkjemperen før kampen. Du kan ikke inspirere deg selv. Se " + L("bard-play", "tur for tur") + " og " + L("party-synergy", "samspillet") + "."},
+  ],
+  "cards": [
+   {"kind": "build", "title": "Fjerdeplassen ved siden av bard, tyv og warlock", "html":
+    "<ul><li><b>Lae'zel</b> (Battle Master) eller <b>Karlach</b> (Berserker) står i front og gir tyven en alliert inntil målet, slik at Sneak Attack lyser opp.</li>"
+    "<li><b>Shadowheart</b> (cleric) dekker helbreding, <i>Guidance</i> og fordel på sniking for tyven. Velg henne hvis dere heller vil ha støtte enn enda en skjør skadekarakter.</li>"
+    "<li><b>Gale</b> (wizard) gir område-magi og Intelligence-sjekker. Han løser ikke mangelen på HP.</li>"
+    "<li><b>Astarion</b> er tyven guiden ellers beskriver. <b>Wyll</b> er warlocken. Har du allerede den rollen, kan Withers omskolere dem.</li>"
+    "<li>En leiesoldat (fighter, barbarian, paladin eller cleric) fyller samme hull uten å ta plassen fra en historie.</li>"
+    "<li>Flere følgesvenner kommer senere. Hvem de er, og hva de er gode for, ligger i skjulte kort lenger ned.</li></ul>"},
+  ]},
+ {"id": "comp-sh", "label": "Akt 1", "title": "Shadowheart",
+  "basics": [
+   "<b>Klasse:</b> Cleric (Trickery Domain), Wisdom. Medium rustning og skjold. <i>Healing Word</i>, <i>Guidance</i> (+1d4 på evnesjekker) og <i>Blessing of the Trickster</i> (fordel på Stealth for én alliert, til neste lange hvil).",
+   "<b>Ved siden av bard, tyv og warlock:</b> dere mangler helbreding. Hun gir den, pluss Guidance før barden snakker og før tyven dirker. Trickster-velsignelsen er laget for tyven. Withers kan gjøre henne til Life- eller Light-cleric hvis du vil ha mer helbreding. Historien behandler henne fortsatt som cleric.",
+   where("shadowheart", "<b>Hvor:</b> akt 1, nautiloiden. Tar du henne ikke med der, finnes hun igjen ved krasjstedet. Se " + L("map-nautiloid", "kartet for nautiloiden") + " og " + L("map-beach", "krasjstedet") + "."),
+   you_are("shadowheart", "Shadowheart"),
+  ],
+  "tips": [],
+  "cards": [
+   funn("shadowheart", "Shadowheart: slik finner du henne",
+    "<ul><li>På <b>nautiloiden</b>, i rommet med kapsler før roret: åpne kapselen hennes. Hun blir med derfra.</li>"
+    "<li>Frigjorde du henne, men lot henne bli igjen? Hun ligger bevisstløs ved vraket på <b>Ravaged Beach</b>, nær der du selv landet.</li>"
+    "<li>Lot du henne bli i kapselen? Hun står ved døren inn til <b>Dank Crypt</b>, under kapellet. Se " + L("map-crypt", "kartet for ruinene") + ".</li>"
+    "<li>Senere i akt 1 kan hun stå inne i <b>The Hollow</b> i Emerald Grove. Er hun fortsatt ikke med, oppsøker hun gruppa ved goblinleiren, og igjen ved fjellpasset.</li>"
+    "<li>Snakk med henne og be henne bli med. Dreper du henne, er hun borte.</li></ul>"),
+   hist("Shadowheart: historie, romanse og skjebne",
+    "<ul><li><b>Romanse:</b> alle kjønn. Snakk med henne i leiren etter store hendelser. Godkjenning åpner den.</li>"
+    "<li><b>Skjebne:</b> den personlige tråden går gjennom hele spillet og handler om troen hennes. I akt 2, ved inngangen til Shadowfell, testes den. Ta henne med. Går du inn uten henne, forlater hun deg.</li>"
+    "<li>Lar du Balthazar ta den hun leter etter (Nightsong), forlater hun deg. Angriper du henne når hun står overfor det valget, kan hun bli fiendtlig.</li>"
+    "<li>I leiren kan hun og Lae'zel gå løs på hverandre mens en av dem sover. Stiller du deg mot Shadowheart, kan du miste henne.</li>"
+    "<li>Svært lav godkjenning (rundt −50) kan få henne til å gå.</li></ul>"),
+  ]},
+ {"id": "comp-astarion", "label": "Akt 1", "title": "Astarion",
+  "basics": [
+   "<b>Klasse:</b> Rogue (høy alv). På nivå 3 blir han <b>Arcane Trickster</b> som standard. Dexterity, Sneak Attack, låser og feller.",
+   "<b>Ved siden av bard, tyv og warlock:</b> han <i>er</i> tyven denne guiden beskriver. Gi ham Bardic Inspiration før det store angrepet. <i>Faerie Fire</i> og <i>Hold Person</i> fra barden gjør Sneak Attack tryggere, og Hold Person gjør nærkamptreff kritiske. Se " + L("rogue-core", "Sneak Attack og Cunning Action") + ". Har du allerede en tyv, dekker han fortsatt låsene, eller du omskolerer ham.",
+   where("astarion", "<b>Hvor:</b> akt 1, krasjstedet (Ravaged Beach). Se " + L("map-beach", "kartet") + "."),
+   you_are("astarion", "Astarion"),
+  ],
+  "tips": [],
+  "cards": [
+   funn("astarion", "Astarion: slik finner du ham",
+    "<p>Han står på den sørlige svingen av veien <b>vest for nautiloid-vraket</b>, nordvest for den ødelagte brygga (Ravaged Beach). Nålen på " + L("map-beach", "krasjstedet") + " heter Astarion.</p>"
+    "<p>Han roper at noen trenger hjelp. Det er et påfunn: etter scenen kan du be ham bli med. Dreper du ham der, er han borte. Han har ikke de samme reservestedene som Shadowheart, så snakk med ham før du forlater akt 1.</p>"),
+   dict(hist("Astarion: historie, romanse og skjebne",
+    "<ul><li><b>Romanse:</b> alle kjønn. Han liker vidd, og at du lar ham velge selv. Ren godhet uten gevinst senker ofte godkjenningen.</li>"
+    "<li>Noen netter inne våkner du av at han vil bite. Du kan la ham, nekte, eller prøve å stake ham. Klarer du å stake ham, dør han for godt.</li>"
+    "<li><b>Du kan miste ham</b> ved å overgi ham til monsterjegeren Gandrel (Sunlit Wetlands), ved å avbryte ritualet hans på feil måte, eller ved å drepe Cazador uten at Astarion er med og godkjenningen er for lav.</li>"
+    "<li><b>Skjebne:</b> i akt 3 kulminerer historien hos Cazador. Fullfører du den ikke, mister han evnen til å gå i solen. Valget der endrer både ham og en eventuell romanse.</li></ul>"), hideOrigin="astarion"),
+   {"kind": "story", "onlyOrigin": "astarion", "hint": MISS, "title": "Astarion: din egen historie",
+    "html": "<p>Du er tyven. Noen netter inne kan du drikke blod av en følgesvenn. Stopper du ikke, kan de dø. Blir du tatt og snakker deg ikke ut, kan de forlate deg. I akt 3 er ritualet hos Cazador ditt valg. Fullfører du det ikke, mister du solen. Du romanser de andre, ikke deg selv.</p>"},
+  ]},
+ {"id": "comp-gale", "label": "Akt 1", "title": "Gale",
+  "basics": [
+   "<b>Klasse:</b> Wizard (menneske). På nivå 2 blir han <b>Evocation School</b>. Intelligence. Områdeskade, <i>Magic Missile</i>, og han lærer formularer fra skrullruller.",
+   "<b>Ved siden av bard, tyv og warlock:</b> dere er skjøre og har lite område-magi. Gale dekker klynger av fiender, og Intelligence-sjekker (Arcana, History) som en Charisma-gruppe ellers bommer på. Han har like lite HP som resten, så han erstatter ikke Lae'zel eller Karlach i front.",
+   where("gale", "<b>Hvor:</b> akt 1, Roadside Cliffs, ved et waypoint. Se " + L("map-beach", "kartet for krasjstedet") + "."),
+   you_are("gale", "Gale"),
+  ],
+  "tips": [],
+  "cards": [
+   funn("gale", "Gale: slik finner du ham",
+    "<p>Ved <b>Roadside Cliffs Ancient Rune Circle</b>, nord for Ravaged Beach (nålen «Gale ved waypointet» på " + L("map-beach", "kartet") + "). En hånd stikker ut. Du må klare en sjekk for å trekke ham ut.</p>"
+    "<ul><li><b>Bard og warlock:</b> Charisma, DC 7. Ro ned magien i sirkelen.</li>"
+    "<li><b>Tyv:</b> Sleight of Hand, DC 12. Vanskeligere enn de andre.</li>"
+    "<li>Strength er DC 7. Et nytt styrkeforsøk er DC 12, eller DC 7 hvis det første forsøket var en klassesjekk. Wizard, cleric og druid har egne DC 7-valg.</li>"
+    "<li>Feiler du, får du ett forsøk til. To feil, eller at du går fra ham, stenger portalen. Da kan han ikke rekrutteres.</li></ul>"),
+   hist("Gale: historie, romanse og skjebne",
+    "<ul><li><b>Romanse:</b> alle kjønn. I akt 2 kan den bli alvorlig i leiren ved Moonrise, før dere går inn i kolonien under tårnet. Etter det forsvinner sjansen.</li>"
+    "<li>Han ber om en magisk gjenstand. Gir du ham ikke den første, og du avviser ham igjen, kan han forlate deg. En helt vanlig gjenstand holder.</li>"
+    "<li>Angriper du lunden sammen med goblinene, vil han gå, med mindre du snakker ham til å bli.</li>"
+    "<li><b>Skjebne:</b> en tilstand i brystet kan bli fatal hvis den ignoreres. Elminster kommer med et bud senere. Hopper du over det, kan Gale forlate dere etter Ketheric. Mot slutten velger han mellom ambisjon og å forbli seg selv.</li></ul>"),
+  ]},
+ {"id": "comp-lz", "label": "Akt 1", "title": "Lae'zel",
+  "basics": [
+   "<b>Klasse:</b> Fighter (githyanki). På nivå 3 blir hun <b>Battle Master</b>. Strength, tohåndsvåpen, Action Surge og manøvre (blant annet å slå fiender over ende).",
+   "<b>Ved siden av bard, tyv og warlock:</b> hun er det enkleste fjerdevalget. Høyt AC, hun tar slagene, og når hun står inntil en fiende får tyven Sneak Attack uten å trenge fordel. Bardens <i>Hold Person</i> gjør hennes nærkamptreff kritiske.",
+   where("laezel", "<b>Hvor:</b> akt 1, nautiloiden, og deretter Roadside Cliffs hvis dere skilles. Se " + L("map-nautiloid", "nautiloiden") + " og " + L("map-beach", "krasjstedet") + "."),
+   you_are("laezel", "Lae'zel"),
+  ],
+  "tips": [],
+  "cards": [
+   funn("laezel", "Lae'zel: slik finner du henne",
+    "<ul><li>På <b>nautiloiden</b> blir hun med som midlertidig følgesvenn når dere kjemper sammen mot impene. Hun skiller lag etter krasjet.</li>"
+    "<li>Døde hun på skipet, ligger liket på stranda. Reises hun, kan hun bli med.</li>"
+    "<li>I villmarken, <b>Roadside Cliffs</b>, ca. X 242 / Y 370: to tieflinger (Damays og Nymessa) har henne i et bur. Overtal, tru, eller kjemp, og inviter henne etterpå. Nålen på " + L("map-beach", "kartet") + " heter «Lae'zel i buret». Buret står der også etter kampen ved lundeporten.</li>"
+    "<li>Venter du for lenge, bryter hun ut selv. Da kan hun rekrutteres ved githyanki-patruljen nær fjellpasset, og en siste gang ved stien til krèchen (Rosymorn). Dør hun der som alliert, kan hun reises og bli med.</li>"
+    "<li>Går du inn i krèchen uten å ha tatt henne med, forsvinner hun fra passet. I de skyggeforbannede landene kan liket reises med <i>Revivify</i> eller en rull.</li></ul>"),
+   hist("Lae'zel: historie, romanse og skjebne",
+    "<ul><li><b>Romanse:</b> alle kjønn. Den starter fysisk og kan bli alvorlig hvis godkjenningen holder.</li>"
+    "<li>I leiren kan hun og Shadowheart prøve å drepe hverandre. Stiller du deg på Shadowhearts side, eller lar det skje, kan Lae'zel dø for godt.</li>"
+    "<li><b>Du kan miste henne</b> hvis du går videre til akt 2 uten å ha vært innom krèchen (du kan true henne til å bli; går hun, tar skyggeforbannelsen henne). Lar du henne stå igjen på fjellstien idet dere går inn i Shadowfell, mister du henne også.</li>"
+    "<li><b>Skjebne:</b> tråden handler om dronningen hennes og krèchen. Senere må hun velge side. Går du imot det hun har landet på, kan hun bli fiendtlig med mindre du overtaler henne.</li></ul>"),
+  ]},
+ {"id": "comp-wyll", "label": "Akt 1", "title": "Wyll",
+  "basics": [
+   "<b>Klasse:</b> Warlock (menneske), patronen <b>The Fiend</b>. Charisma. Midlertidige HP når han feller en fiende. På nivå 3 velger du pakt for ham.",
+   "<b>Ved siden av bard, tyv og warlock:</b> han <i>er</i> warlocken hvis du ikke allerede har en. Se " + L("wl-core", "Eldritch Blast og invokasjoner") + ". Har dere allerede en warlock, gjør <b>Pact of the Blade</b> ham til nærkjemper med Charisma, så han kan stå i front. <b>Hexblade</b> (Patch 8) gjør det samme via omskolering hos Withers. Da skyter dere ikke to Eldritch Blast ved siden av hverandre.",
+   where("wyll", "<b>Hvor:</b> akt 1, Emerald Grove, etter kampen ved porten. Se " + L("map-grove", "kartet for lunden") + "."),
+   you_are("wyll", "Wyll"),
+  ],
+  "tips": [],
+  "cards": [
+   funn("wyll", "Wyll: slik finner du ham",
+    "<p>Etter kampen ved porten står han <b>inne i lunden, i The Hollow</b>, og trener unge tieflinger. Snakk med ham og be ham bli med. Nålen på " + L("map-grove", "kartet") + " heter Wyll.</p>"
+    "<p>Tar du Karlach med før du har snakket med ham, dukker han opp i leiren, sint. Du kan snakke ham ned og rekruttere ham der.</p>"),
+   hist("Wyll: historie, romanse og skjebne",
+    "<ul><li><b>Romanse:</b> alle kjønn. Godkjenning og samtaler i leiren, som de andre.</li>"
+    "<li><b>Du kan miste ham</b> hvis du hjelper goblinene med å angripe lunden. Da blir han ikke med, eller han forlater deg. Karlach gjør det samme.</li>"
+    "<li>Vil han drepe Karlach, og du dreper ham for å stanse det, er han borte. Lar du ham drepe henne, er det hun som er borte. Begge kan bli med hvis du snakker ham ned.</li>"
+    "<li><b>Skjebne:</b> pakten med Mizora. Redder du henne ikke i kolonien under Moonrise, eller dreper henne der, havner Wyll i helvete for godt. Dreper du faren hans, Ulder Ravengard, i Iron Throne, forlater Wyll deg.</li></ul>"),
+  ]},
+ {"id": "comp-karlach", "label": "Akt 1", "title": "Karlach",
+  "basics": [
+   "<b>Klasse:</b> Barbarian (Zariel-tiefling). På nivå 3 blir hun <b>Berserker</b>. Strength og Constitution, tohåndsvåpen, Rage og et ekstra angrep som bonushandling mens hun raser.",
+   "<b>Ved siden av bard, tyv og warlock:</b> samme jobb som Lae'zel, med mer HP. Hun står i front så bard, tyv og warlock får jobbe. Står hun inntil målet, får tyven Sneak Attack. Du har én fjerdeplass hvis tyven og warlocken allerede er med, så velg henne eller Lae'zel.",
+   where("karlach", "<b>Hvor:</b> akt 1, Risen Road. Se nålen på " + L("map-overview", "oversiktskartet") + "."),
+   you_are("karlach", "Karlach"),
+  ],
+  "tips": [],
+  "cards": [
+   funn("karlach", "Karlach: slik finner du henne",
+    "<p>På <b>Risen Road</b>, sør for tollhuset, der et blodspor går ned mot elva. Ca. <b>X 111 / Y 503</b>, bak stokken over bekken. Nålen «Karlach» på " + L("map-overview", "oversiktskartet") + ".</p>"
+    "<p>Snakk med henne og gå med på å ta deg av dem som jager henne. De holder til i tollhuset. Hør begge sider før du slår til. Er Wyll med, kjenner han henne igjen. Du kan likevel ta henne med.</p>"),
+   hist("Karlach: historie, romanse og skjebne",
+    "<ul><li><b>Romanse:</b> alle kjønn. Motoren gjør at hun ikke kan ta på noen i starten. Smeden <b>Dammon</b> i lunden kan hjelpe, og han dukker opp igjen senere. Mister du ham, blir både romansen og slutten hennes trangere.</li>"
+    "<li>Gruppen i tollhuset er ikke det de gir seg ut for. De tjener Zariel. Stiller du deg på Anders' side, dør Karlach.</li>"
+    "<li><b>Du kan miste henne</b> hvis du går til fjellpasset eller de skyggeforbannede landene uten å ha gjort ferdig jakten på henne, eller hvis du angriper lunden sammen med goblinene.</li>"
+    "<li>Lar du Wyll drepe henne når han konfronterer henne, er hun borte for godt.</li>"
+    "<li><b>Skjebne:</b> motoren kan ikke repareres helt i byen. Mot slutten står valget mellom at hun dør, eller at noen blir med henne tilbake til Avernus.</li></ul>"),
+  ]},
+ {"id": "comp-later", "label": "Senere", "title": "Senere følgesvenner",
+  "summary": "Noen følgesvenner kommer senere i spillet. Noen kan du gå glipp av – vis tips. Navn, klasse og sted vises ikke før du åpner et kort.",
+  "basics": [
+   "Kortene under veksler mellom plassering og historie. Titlene er skjult med vilje.",
+   "De første seks følgesvennene over kan du finne i akt 1. Disse kan du ikke det.",
+  ],
+  "tips": [],
+  "cards": [
+   {"kind": "loot", "title": "Halsin: klasse, rolle og hvor", "html":
+    "<p><b>Druid (Circle of the Moon)</b>, trealv, Wisdom. Bjørneformen er en frontlinje med egen bolk HP, og han har fortsatt helbreding og kontroll. Ved siden av bard, tyv og warlock dekker han slagene dere ikke tåler, uten å konkurrere om Charisma.</p>"
+    "<ul><li><b>Akt 1, goblinleiren.</b> Han sitter fanget i <b>worg-innhegningen</b> i Shattered Sanctum, i bjørneform. Gobliner kaster stein. Se " + L("map-goblin", "kartet") + " når funn-bryteren er på.</li>"
+    "<li>Fri ham og bli enig om å felle goblinlederne. Han kan følge etter en stund, men angriper gobliner på flekken. Be ham vente i innhegningen hvis du vil snike.</li>"
+    "<li>Lunden må stå. Etter festen kommer han til leiren. Han blir med for alvor i <b>akt 2</b>, når oppdraget med å løfte skyggeforbannelsen har kommet et stykke (Thaniel er reddet og gjenforent). Etter at Ketheric er felt og forbannelsen faktisk letter, blir han værende.</li>"
+    "<li>Går du til fjellpasset eller de skyggeforbannede landene før du har frigjort ham, ligger liket i cellen.</li></ul>"},
+   {"kind": "story", "title": "Halsin: historie, romanse og skjebne", "html":
+    "<ul><li><b>Romanse:</b> alle kjønn, mest i akt 3. Han er den eneste som kan bli med i en romanse dere allerede har med Astarion, Shadowheart eller Karlach, hvis de sier ja. Gale sier nei.</li>"
+    "<li><b>Du kan miste ham</b> hvis portalen han åpner for å hente Thaniel faller. Da er han borte i Shadowfell, for godt. Skyggeforbannelsen kan ikke løftes uten ham.</li>"
+    "<li>Drar du til byen uten å ha fullført oppdraget, blir han igjen i de skyggeforbannede landene.</li></ul>"},
+   {"kind": "loot", "title": "Minthara: klasse, rolle og hvor", "html":
+    "<p><b>Paladin (Oath of Vengeance)</b>, Lolth-svoren drow, Charisma. Tung rustning, Divine Smite og senere en aura som hjelper bard og warlock å holde konsentrasjonen. <i>Hold Person</i> fra barden gjør smite-treffene kritiske. Hun kan også snakke, siden Charisma er høy.</p>"
+    "<ul><li>Du møter henne i <b>akt 1, Shattered Sanctum</b> (se " + L("map-goblin", "kartet") + "), men hun blir ikke med før <b>akt 2, Moonrise Towers</b>.</li>"
+    "<li><b>Vei A:</b> gå med henne og angrip lunden. Da dukker hun opp til dom i Moonrise uten flere steg. Wyll og Karlach forlater deg.</li>"
+    "<li><b>Vei B (fra Patch 7):</b> slå henne bevisstløs, ikke drep henne. Slå på <i>Non-Lethal Attacks</i> (Passives). Det gjelder bare nærkampvåpen. Det siste slaget må være nærkamp. Det kan skje i Shattered Sanctum, eller når hun angriper lunden. Fra Patch 7 holder det at hun blir slått bevisstløs.</li>"
+    "<li>I Moonrise dømmes hun og kastes i fengselet. Fri henne (drep vokterne, eller snakk), følg henne ut, og inviter henne til leiren. Sier du nei, sitter hun på tronen etter at Ketheric er felt, og du kan spørre igjen.</li></ul>"},
+   {"kind": "story", "title": "Minthara: historie, romanse og skjebne", "html":
+    "<ul><li><b>Romanse:</b> alle kjønn. Hun er sjalu. Angriper du lunden med henne, kan det bli en natt under festen der, før den egentlige romansen i akt 2.</li>"
+    "<li><b>Du kan gå glipp av henne</b> hvis det siste slaget dreper henne (ild, magi eller pil). Withers vekker henne ikke fra det.</li>"
+    "<li>Veien der lunden faller, koster Wyll, Karlach og mange tieflinger. Veien der hun bare slås bevisstløs, lar lunden stå, og Halsin kan fortsatt bli med senere.</li>"
+    "<li>Etter Ketheric kan du be henne gå. Mens han lever, blir hun i leiren hvis dere drar tilbake til akt 1.</li></ul>"},
+   {"kind": "loot", "title": "Jaheira: klasse, rolle og hvor", "html":
+    "<p><b>Druid (Circle of the Land)</b>, høy halvalv, Wisdom. Mer trolldom enn Halsins bjørneform: kontroll, helbreding og fortsatt wild shape. Ved siden av bard, tyv og warlock er hun en ekstra støttespiller som tåler mer enn Gale, og hun dekker Wisdom-sjekker.</p>"
+    "<ul><li><b>Akt 2, Last Light Inn.</b> Hun må være i live og ikke fiendtlig.</li>"
+    "<li>Hun blir med som midlertidig alliert under angrepet på <b>Moonrise Towers</b>. Etter det første slaget mot Ketheric på taket kan du invitere henne til leiren, og da blir hun værende.</li>"
+    "<li>Snakk med henne før du forlater akt 2. Går du til byen uten å ha gjort det, kan du miste sjansen.</li></ul>"},
+   {"kind": "story", "title": "Jaheira: historie og skjebne", "html":
+    "<ul><li><b>Romanse:</b> nei. Verken hun eller Minsc kan romanses.</li>"
+    "<li><b>Du kan miste henne</b> hvis Last Light faller. Det skjer hvis Isobel blir skadet eller dør etter at Ketheric har trukket seg tilbake. Jaheira kan dø i det slaget. Har du henne med og handler, kan hun berge seg.</li>"
+    "<li>Dreper du Minsc i kloakken i stedet for å slå ham bevisstløs, forlater hun deg. Angriper du barna hennes, blir hun fiendtlig eller går.</li>"
+    "<li>Hun må være med og i live hvis du vil rekruttere Minsc.</li></ul>"},
+   {"kind": "loot", "title": "Minsc: klasse, rolle og hvor", "html":
+    "<p><b>Ranger (Hunter)</b>, menneske, med hamsteren Boo. Dexterity eller Strength, solid skade på ett mål. Ved siden av bard, tyv og warlock er han en enkel skadekarakter. Han gir ikke helbredingen Shadowheart eller Jaheira gir, men han tåler mer enn en ren skyter.</p>"
+    "<ul><li><b>Akt 3.</b> Jaheira må ha blitt med i akt 2, og hun må være i live. Er hun død, kan han ikke rekrutteres.</li>"
+    "<li>Oppdraget hennes (<i>The High Harper</i>) starter i Wyrm's Crossing. Du ser ham først i <b>Counting House</b>. Selve rekrutteringen er kampen i <b>kloakken under Lower City</b> (Abandoned Cistern).</li>"
+    "<li>Det siste slaget må slå ham <b>bevisstløs</b> (<i>Non-Lethal Attacks</i>, nærkamp). Dreper du ham, er han borte, og Jaheira går.</li>"
+    "<li>Etterpå må vokteren overtales til å skjerme ham (lettere med Jaheira til stede). Så løper han etter Boo. Følg etter og snakk med begge.</li></ul>"},
+   {"kind": "story", "title": "Minsc: historie og skjebne", "html":
+    "<ul><li><b>Romanse:</b> nei.</li>"
+    "<li>Boo er knyttet til ham og kan kalles fram når Minsc er med.</li>"
+    "<li><b>Du kan miste ham</b> hvis Jaheira forlater dere, hvis du dreper ham i kloakken, eller hvis han ofres i Murder Tribunal. Da er det permanent.</li>"
+    "<li>Angriper du barna til Jaheira mens han er med, går det galt for begge.</li></ul>"},
+  ]},
+ {"id": "comp-hire", "label": "Withers", "title": "Withers' leiesoldater",
+  "basics": [
+   "Leiesoldater (hirelings) er ekstra partymedlemmer uten godkjenning, romanse, personlig oppdrag eller egne dialogvalg. De bruker ikke illithid-evner.",
+   "Snakk med <b>Withers</b> fra <b>nivå 3</b>. Et nytt svar dukker opp om hva han holdt på å sortere. Hver koster <b>100 gull</b>. Gruppa må ha en ledig plass der og da. Etterpå kan du sende dem til leiren. Maks <b>tre</b> om gangen. De står nær Withers, uten eget telt.",
+   "Du kan gi dem nytt navn og utseende når du henter dem, og senere i det magiske speilet. Rase, bakgrunn og stemme er faste. Klassen endrer du med omskolering (100 gull), som for alle andre.",
+   "Sender du en leiesoldat bort for godt, kan Withers hente dem igjen. Da er de nivå 1, med opprinnelig navn og klasse, men de beholder gjenstandene.",
+   "<b>Ved siden av bard, tyv og warlock</b> er de nyttige når fjerdeplassen skal være front eller healer, og du vil la historie-følgesvennene stå. Eldra (barbarian), Varanna (fighter) og Kerz (paladin) står i front. Zenith (cleric) helbreder. Brinna er bard, Maddala er tyv og Kree er warlock: de overlapper rollene dere allerede har.",
+  ],
+  "tips": [],
+  "cards": [
+   {"kind": "build", "title": "De tolv leiesoldatene", "html":
+    "<ul><li><b>Brinna Brightsong</b> – bard (Lightfoot-halfling).</li>"
+    "<li><b>Danton</b> – druid (Mephistopheles-tiefling).</li>"
+    "<li><b>Eldra Luthrinn</b> – barbarian (gold dwarf). God front.</li>"
+    "<li><b>Sir Fuzzalump</b> – wizard (rock gnome). Område-magi, som Gale.</li>"
+    "<li><b>Jacelyn</b> – sorcerer, Draconic Bloodline (høy halvalv).</li>"
+    "<li><b>Kerz</b> – paladin, Oath of Devotion (halvork). Front og litt støtte.</li>"
+    "<li><b>Kree Derryck</b> – warlock, The Great Old One (duergar).</li>"
+    "<li><b>Maddala Deadeye</b> – rogue (menneske).</li>"
+    "<li><b>Sina'zith</b> – monk (githyanki). Nærkamp.</li>"
+    "<li><b>Varanna Sunblossom</b> – fighter (wood half-elf). Enkel front.</li>"
+    "<li><b>Ver'yll Wenkiir</b> – ranger (Seldarine-drow).</li>"
+    "<li><b>Zenith Feur'sel</b> – cleric, Light Domain (høy alv). Helbreding.</li></ul>"
+    "<p>Prestasjonen <i>Outsourcing</i> får du første gang du rekrutterer en leiesoldat. Én av hver klasse, sjekket mot bg3.wiki.</p>"},
+  ]},
+ ]}
+
+DATA["guides"].insert(1, COMP)
+
+# Dark Urge og følgesvenner. Dekodes bare når The Dark Urge er valgt.
+DU["comp-swap"] = {"tips": [], "cards": [
+ {"kind": "du", "title": "Følgesvennene merker trangen",
+  "html": "<p>Følgesvennene kommenterer drømmer og mørke innfall. Flere misliker dem. Astarion er den som reagerer med minst avsky. Godkjenning betyr mer for deg, fordi den mørkeste stien kan få folk til å gå eller dø.</p>"
+         "<p>Siden Patch 7 kan <b>Alfira</b> bli med som midlertidig følgesvenn den natten hun oppsøker leiren, hvis du er The Dark Urge og har en ledig plass. Hun er ufullstendig som partymedlem. Hva trangen gjør den natten, står i spoilerkortet under " + L("grove", "Emerald Grove") + ".</p>"},
+ {"kind": "du", "title": "Den natten trangen sikter på en følgesvenn (STOR spoiler)",
+  "html": "<p>Etter at du har spart Isobel i akt 2, får du beskjed om å drepe følgesvennen du står nærmest, ofte den du romanser. Legger du deg igjen, eller ingen vekker deg, dreper trangen den følgesvennen du står nærmest mens dere sover. Det er permanent. De andre blir fiendtlige, med mindre du klarer en Deception-sjekk med DC 30. Våkne, og velg å motstå.</p>"},
+ {"kind": "du", "title": "Om du blir Bhaals utvalgte",
+  "html": "<ul><li>Jaheira og Minsc forlater deg, eller de stiller seg mot deg, hvis du blir Bhaals utvalgte.</li>"
+         "<li>Wyll dør hvis Jaheira fortsatt er i live.</li>"
+         "<li>Gale dør hvis Jaheira er i live og godkjenningen hans ikke er minst middels (20).</li>"
+         "<li>Karlach dør hvis Jaheira er i live og godkjenningen hennes ikke er høy (40).</li>"
+         "<li>Withers kan ikke rette opp disse dødsfallene.</li></ul>"},
+]}
+DU["comp-gale"] = {"tips": [], "cards": [
+ {"kind": "du", "title": "Hånden i portalen (STOR spoiler)",
+  "html": "<p>Første gang du møter Gale, har The Dark Urge et eget valg: å gi etter og <b>kappe hånden av Gale</b>. Det er ikke bare en tanke. Han faller tilbake i sirkelen, og du kan aldri rekruttere ham. Paladiner bryter eden på det valget. La være å velge det hvis du vil ha ham med.</p>"},
+]}
+
