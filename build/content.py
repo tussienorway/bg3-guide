@@ -541,9 +541,9 @@ nodes["camp"]["tips"].append({"cls": "any", "text": "Bytte partymedlemmer, Withe
 nodes["gate"]["tips"].append({"cls": "any", "hideOrigin": "wyll", "text": "Wyll kan bli med inne i lunden. Se " + L("comp-wyll", "Følgesvenner") + "."})
 
 # ------------------------------------------------------------------
-# 7. Skjematiske kart (ingen spillkart-bilder; nåler peker til avsnitt)
+# 7. Kart (lokale spillkart fra bg3.wiki, med nåler i prosent)
 # ------------------------------------------------------------------
-def pin(x, y, label, href, spoiler=None, card=None, pro=None):
+def pin(x, y, label, href, spoiler=None, card=None, pro=None, frame=None):
     p = {"x": x, "y": y, "label": label, "href": href}
     if spoiler:
         p["spoiler"] = spoiler
@@ -551,19 +551,34 @@ def pin(x, y, label, href, spoiler=None, card=None, pro=None):
         p["card"] = card
     if pro:
         p["pro"] = pro
+    if frame:
+        p["frame"] = frame
     return p
 
+def jump(href, kicker, label, note):
+    return {"href": href, "kicker": kicker, "label": label, "note": note}
+
+def frame(fid, src, alt, page, note):
+    return {"id": fid, "src": src, "alt": alt, "page": page, "note": note}
+
+WIKI = "Kartside på bg3.wiki"
+INTER = "Interaktivt kart"
+MG = "https://mapgenie.io/baldurs-gate-3/maps/"
+
 DATA["maps"] = {
- "title": "Akt 1 – skjematiske kart",
- "summary": "Kartene viser omtrent hvordan områdene ligger i forhold til hverandre, ikke avstander eller form. Nåler hopper til riktig avsnitt. Funn, historie og Dark Urge tegnes bare når den tilhørende spoilerbryteren er på. Under hvert kart er den samme lista, så det fungerer uten å zoome.",
- "links": [
-  {"href": "https://bg3.wiki/wiki/Wilderness", "label": "Wilderness på bg3.wiki"},
-  {"href": "https://mapgenie.io/baldurs-gate-3", "label": "Interaktivt kart (lenken bg3.wiki bruker)"},
+ "title": "Akt 1 – kart",
+ "summary": "Kartene er spillkart fra bg3.wiki, lagret lokalt. Nåler ligger omtrent der stedet er, og hopper til avsnittet. Funn, historie og Dark Urge vises bare når den tilhørende spoilerbryteren er på. Lista under hvert kart er de samme stedene, så det fungerer på liten skjerm. Klikk på bildet for å se det i full størrelse. Lenkene åpner områdets side og det interaktive kartet wiki-en peker til.",
+ "jumps": [
+  jump("https://bg3.wiki/wiki/Wilderness", WIKI, "Wilderness – hele akt 1", "Oversiktssiden, med strand, lund, landsby og goblinleir."),
+  jump(MG + "wilderness", INTER, "Wilderness på Map Genie", "Det interaktive kartet bg3.wiki lenker til, for akt 1-overflaten."),
  ],
  "areas": [
   {"id": "map-nautiloid", "title": "Nautiloiden",
-   "blurb": "Prologen går bare én vei: fra kapselen, forbi operasjon og impekamp, til roret. Du kan ikke vende tilbake etter krasjet.",
-   "links": [{"href": "https://bg3.wiki/wiki/Nautiloid", "label": "Nautiloid på bg3.wiki"}],
+   "blurb": "Prologen går bare én vei: fra kapselen, forbi operasjon og impekamp, til roret. Du kan ikke vende tilbake etter krasjet. bg3.wiki har ikke et uthentet gulvkart av skipet, så dette kortet har stedsliste og lenker i stedet for et bilde.",
+   "jumps": [
+    jump("https://bg3.wiki/wiki/Nautiloid", WIKI, "Nautiloid", "Prologskipet: barnehage, operasjon, impekamp og ror."),
+    jump(MG + "nautiloid", INTER, "Nautiloiden", "Hele prologkartet. Samme kart wiki-en bruker for «interactive map»-lenker her."),
+   ],
    "pins": [
     pin(16, 52, "Startkapselen", "nautiloid"),
     pin(38, 50, "Lae'zel og impekampen", "nautiloid"),
@@ -572,92 +587,141 @@ DATA["maps"] = {
     pin(86, 68, "Everburn Blade", "loot-start", "loot", "loot-start:0"),
    ]},
   {"id": "map-beach", "title": "Krasjstedet (Ravaged Beach)",
-   "blurb": "Vraket ligger ved elva. Følgesvennene står spredt mellom stranda og klippene mot lunden. Kapellruinene er i nærheten.",
-   "links": [{"href": "https://bg3.wiki/wiki/Ravaged_Beach", "label": "Ravaged Beach på bg3.wiki"}],
+   "blurb": "Vraket ligger ved elva. Følgesvennene står spredt mellom stranda og klippene mot lunden. Kapellruinene er mot øst.",
+   "frames": [
+    frame("beach", "img/kart/ravaged-beach.webp", "Minikart over sørøst i Wilderness, med Ravaged Beach, Roadside Cliffs og Overgrown Ruins",
+          "https://bg3.wiki/wiki/File:Wilderness-Map-SE.png", "Sørøst i Wilderness. Nord er opp."),
+   ],
+   "jumps": [
+    jump("https://bg3.wiki/wiki/Ravaged_Beach", WIKI, "Ravaged Beach", "Krasjstedet langs Chionthar, med vraket og veien mot lunden."),
+    jump(MG + "wilderness?regions=2093", INTER, "Ravaged Beach", "Map Genie åpnet på regionen Ravaged Beach."),
+   ],
    "pins": [
-    pin(28, 54, "Vraket", "beach"),
-    pin(18, 64, "Shadowheart ved vraket", "beach"),
-    pin(42, 66, "Astarion", "beach"),
-    pin(52, 30, "Gale ved waypointet (Roadside Cliffs)", "beach"),
-    pin(74, 26, "Lae'zel i buret", "beach"),
-    pin(12, 28, "Silver Pendant (Harper-utposten)", "loot-start", "loot", "loot-start:1"),
-    pin(48, 78, "Begravde kister", "loot-start", "loot", "loot-start:2"),
+    pin(40, 72, "Vraket", "beach", frame="beach"),
+    pin(33, 78, "Shadowheart ved vraket", "beach", frame="beach"),
+    pin(18, 58, "Astarion", "beach", frame="beach"),
+    pin(50, 34, "Gale ved waypointet (Roadside Cliffs)", "beach", frame="beach"),
+    pin(58, 18, "Lae'zel i buret", "beach", frame="beach"),
+    pin(16, 26, "Silver Pendant (Harper-utposten)", "loot-start", "loot", "loot-start:1", frame="beach"),
+    pin(52, 84, "Begravde kister", "loot-start", "loot", "loot-start:2", frame="beach"),
    ]},
   {"id": "map-crypt", "title": "Overgrown Ruins og Dank Crypt",
    "blurb": "Kapellet ligger over bakken. Trappa går ned i krypten, med feller på veien og Withers innerst.",
-   "links": [
-    {"href": "https://bg3.wiki/wiki/Overgrown_Ruins", "label": "Overgrown Ruins på bg3.wiki"},
-    {"href": "https://bg3.wiki/wiki/Dank_Crypt", "label": "Dank Crypt på bg3.wiki"},
+   "frames": [
+    frame("chapel", "img/kart/refectory.webp", "Kart over kapellet i Overgrown Ruins, Refectory",
+          "https://bg3.wiki/wiki/File:Refectory_Map.jpg", "Kapellet over bakken. Inngangen er døren nederst."),
+    frame("crypt", "img/kart/dank-crypt.webp", "Kart over Dank Crypt",
+          "https://bg3.wiki/wiki/File:Dank_Crypt_Map.jpg", "Krypten under kapellet."),
+   ],
+   "jumps": [
+    jump("https://bg3.wiki/wiki/Overgrown_Ruins", WIKI, "Overgrown Ruins", "Kapellruinene over bakken."),
+    jump("https://bg3.wiki/wiki/Dank_Crypt", WIKI, "Dank Crypt", "Krypten under kapellet, med feller og Withers."),
+    jump(MG + "wilderness?regions=1882", INTER, "Refectory (kapellet)", "Map Genie åpnet på kapellrommet over krypten."),
+    jump(MG + "wilderness?regions=1883", INTER, "Dank Crypt", "Map Genie åpnet på selve krypten."),
    ],
    "pins": [
-    pin(30, 28, "Kapellporten", "crypt"),
-    pin(28, 74, "Feller i krypten", "crypt"),
-    pin(75, 76, "Withers / Jergal-statuen", "crypt"),
-    pin(75, 64, "The Amulet of Lost Voices", "loot-crypt", "loot", "loot-crypt:0"),
+    pin(50, 86, "Kapellporten", "crypt", frame="chapel"),
+    pin(48, 32, "Feller i krypten", "crypt", frame="crypt"),
+    pin(50, 64, "Withers / Jergal-statuen", "crypt", frame="crypt"),
+    pin(64, 58, "The Amulet of Lost Voices", "loot-crypt", "loot", "loot-crypt:0", frame="crypt"),
    ]},
   {"id": "map-grove", "title": "Druidelunden (Emerald Grove)",
-   "blurb": "Porten er inngangen. Inne ligger The Hollow, det hellige bassenget og druidenes indre område.",
-   "links": [{"href": "https://bg3.wiki/wiki/Emerald_Grove", "label": "Emerald Grove på bg3.wiki"}],
+   "blurb": "Porten er inngangen nederst. Inne ligger The Hollow, det hellige bassenget og druidenes indre område bak steindøren øverst.",
+   "frames": [
+    frame("grove", "img/kart/emerald-grove.webp", "Kart over Emerald Grove, med port, Hollow og Sacred Pool",
+          "https://bg3.wiki/wiki/File:Emerald_Grove_Map.png", "Innsiden av lunden. Nord er opp, porten er nederst."),
+   ],
+   "jumps": [
+    jump("https://bg3.wiki/wiki/Emerald_Grove", WIKI, "Emerald Grove", "Lunden, The Hollow, Sacred Pool og det indre området."),
+    jump(MG + "wilderness?regions=1888", INTER, "Emerald Grove", "Map Genie åpnet på Emerald Grove."),
+    jump(MG + "wilderness?regions=2095", INTER, "Druid Grove", "Map Genie åpnet på området som heter Druid Grove på minikartet."),
+   ],
    "pins": [
-    pin(50, 90, "Kampen ved porten", "gate"),
-    pin(42, 72, "Zevlor", "gate"),
-    pin(64, 74, "Wyll", "gate"),
-    pin(38, 54, "The Hollow og handelsfolk", "grove"),
-    pin(76, 30, "Kagha og Arabella", "grove"),
-    pin(50, 28, "Alfira ved Sacred Pool", "grove"),
-    pin(60, 18, "Cap of Curing", "loot-grove", "loot", "loot-grove:0"),
-    pin(16, 56, "Ring of Protection (Tiefling Hideout)", "loot-grove", "loot", "loot-grove:1"),
-    pin(64, 14, "Alfira senere i historien", "grove", "story", "grove:0", "notdu"),
+    pin(50, 91, "Kampen ved porten", "gate", frame="grove"),
+    pin(38, 80, "Zevlor", "gate", frame="grove"),
+    pin(66, 82, "Wyll", "gate", frame="grove"),
+    pin(36, 60, "The Hollow og handelsfolk", "grove", frame="grove"),
+    pin(50, 14, "Kagha og Arabella", "grove", frame="grove"),
+    pin(50, 44, "Alfira ved Sacred Pool", "grove", frame="grove"),
+    pin(60, 38, "Cap of Curing", "loot-grove", "loot", "loot-grove:0", frame="grove"),
+    pin(22, 58, "Ring of Protection (Tiefling Hideout)", "loot-grove", "loot", "loot-grove:1", frame="grove"),
+    pin(68, 36, "Alfira senere i historien", "grove", "story", "grove:0", "notdu", frame="grove"),
    ]},
   {"id": "map-village", "title": "Blighted Village",
-   "blurb": "En liten landsby med sørport, vindmølle og smie. Goblinleiren ligger videre vest.",
-   "links": [{"href": "https://bg3.wiki/wiki/Blighted_Village", "label": "Blighted Village på bg3.wiki"}],
+   "blurb": "Landsbyen ligger midt i skogen, med sørport, vindmølle mot øst og smie mot nord. Goblinleiren ligger videre vest.",
+   "frames": [
+    frame("village", "img/kart/blighted-village.webp", "Minikart over midten av Wilderness, med Blighted Village",
+          "https://bg3.wiki/wiki/File:Wilderness-Map-C.png", "Midten av Wilderness. Landsbyen er området i sentrum."),
+   ],
+   "jumps": [
+    jump("https://bg3.wiki/wiki/Blighted_Village", WIKI, "Blighted Village", "Landsbyen Moonhaven, med port, mølle og smie."),
+    jump(MG + "wilderness?regions=2097", INTER, "Blighted Village", "Map Genie åpnet på landsbyen."),
+   ],
    "pins": [
-    pin(46, 84, "Sørporten", "village"),
-    pin(75, 42, "Vindmøllen og Barcus", "village"),
-    pin(46, 50, "Haste Helm", "loot-village", "loot", "loot-village:0"),
-    pin(30, 30, "Smia og dirkeverktøy", "loot-village", "loot", "loot-village:1"),
+    pin(50, 60, "Sørporten", "village", frame="village"),
+    pin(64, 44, "Vindmøllen og Barcus", "village", frame="village"),
+    pin(50, 48, "Haste Helm", "loot-village", "loot", "loot-village:0", frame="village"),
+    pin(40, 40, "Smia og dirkeverktøy", "loot-village", "loot", "loot-village:1", frame="village"),
    ]},
   {"id": "map-goblin", "title": "Goblinleiren og Shattered Sanctum",
    "blurb": "Ytre leir, så broen inn til tempelet der de tre lederne holder til.",
-   "links": [
-    {"href": "https://bg3.wiki/wiki/Goblin_Camp", "label": "Goblin Camp på bg3.wiki"},
-    {"href": "https://bg3.wiki/wiki/Shattered_Sanctum", "label": "Shattered Sanctum på bg3.wiki"},
+   "frames": [
+    frame("camp", "img/kart/goblin-camp.webp", "Kart over den ytre goblinleiren",
+          "https://bg3.wiki/wiki/File:GoblinCampOuterMap.png", "Ytre leir. Porten er nede til høyre, tempeldørene øverst."),
+    frame("sanctum", "img/kart/shattered-sanctum.webp", "Kart over Shattered Sanctum",
+          "https://bg3.wiki/wiki/File:Screen_Map_Shattered_Sanctum.jpg", "Inne i tempelet. Inngangen er nederst."),
+   ],
+   "jumps": [
+    jump("https://bg3.wiki/wiki/Goblin_Camp", WIKI, "Goblin Camp", "Den ytre leiren foran det gamle Selûne-tempelet."),
+    jump("https://bg3.wiki/wiki/Shattered_Sanctum", WIKI, "Shattered Sanctum", "Inne i tempelet, der Gut, Ragzlin og Minthara holder til."),
+    jump(MG + "wilderness?regions=2092", INTER, "Goblin Camp", "Map Genie åpnet på den ytre leiren."),
+    jump(MG + "wilderness?regions=1892", INTER, "Shattered Sanctum", "Map Genie åpnet inne i tempelet."),
    ],
    "pins": [
-    pin(18, 58, "Vaktene ved porten", "goblincamp"),
-    pin(28, 36, "Volo", "goblincamp"),
-    pin(50, 50, "Inngangen til tempelet", "goblincamp"),
-    pin(86, 38, "Priestess Gut", "goblincamp"),
-    pin(86, 58, "Dror Ragzlin", "goblincamp"),
-    pin(78, 74, "Minthara", "goblincamp"),
-    pin(58, 78, "Halsin", "comp-later", "loot", "comp-later:0"),
-    pin(92, 82, "Minthara som følgesvenn", "comp-later", "loot", "comp-later:2"),
-    pin(62, 20, "Bow of Awareness (Roah Moonglow)", "loot-goblin", "loot", "loot-goblin:0"),
-    pin(24, 80, "Valget: lunden eller goblinene", "goblincamp", "story", "goblincamp:0"),
+    pin(80, 88, "Vaktene ved porten", "goblincamp", frame="camp"),
+    pin(34, 52, "Volo", "goblincamp", frame="camp"),
+    pin(50, 15, "Inngangen til tempelet", "goblincamp", frame="camp"),
+    pin(22, 28, "Priestess Gut", "goblincamp", frame="sanctum"),
+    pin(50, 22, "Dror Ragzlin", "goblincamp", frame="sanctum"),
+    pin(82, 50, "Minthara", "goblincamp", frame="sanctum"),
+    pin(14, 62, "Halsin", "comp-later", "loot", "comp-later:0", frame="sanctum"),
+    pin(68, 64, "Minthara som følgesvenn", "comp-later", "loot", "comp-later:2", frame="sanctum"),
+    pin(28, 76, "Bow of Awareness (Roah Moonglow)", "loot-goblin", "loot", "loot-goblin:0", frame="sanctum"),
+    pin(58, 55, "Valget: lunden eller goblinene", "goblincamp", "story", "goblincamp:0", frame="camp"),
    ]},
   {"id": "map-overview", "title": "Veien ut av akt 1",
-   "blurb": "Slik henger områdene sammen. Underdark og fjellpasset er de to veiene videre mot akt 2. Pilene er omtrentlige.",
-   "links": [
-    {"href": "https://bg3.wiki/wiki/Wilderness", "label": "Wilderness på bg3.wiki"},
-    {"href": "https://bg3.wiki/wiki/Underdark", "label": "Underdark på bg3.wiki"},
-    {"href": "https://bg3.wiki/wiki/Mountain_Pass", "label": "Mountain Pass på bg3.wiki"},
+   "blurb": "Slik henger overflaten sammen. Underdark og fjellpasset er de to veiene videre mot akt 2.",
+   "frames": [
+    frame("wild", "img/kart/wilderness.webp", "Minikart over hele Wilderness i akt 1",
+          "https://bg3.wiki/wiki/File:Map_Wilderness_A_Terrain_Tex.webp", "Hele akt 1-overflaten. Nord er opp."),
+    frame("under", "img/kart/underdark.webp", "Minikart over Underdark",
+          "https://bg3.wiki/wiki/File:Map_Underdark_A_Terrain_Tex.webp", "Underdark, den ene veien mot akt 2."),
+    frame("pass", "img/kart/mountain-pass.webp", "Kart over klosteret i fjellpasset",
+          "https://bg3.wiki/wiki/File:MountainPassMap.png", "Klosteret i fjellpasset, den andre veien mot akt 2."),
+   ],
+   "jumps": [
+    jump("https://bg3.wiki/wiki/Wilderness", WIKI, "Wilderness", "Hele akt 1-overflaten, fra stranda til goblinleiren."),
+    jump("https://bg3.wiki/wiki/Underdark", WIKI, "Underdark", "Den ene veien videre mot akt 2."),
+    jump("https://bg3.wiki/wiki/Mountain_Pass", WIKI, "Mountain Pass", "Den andre veien videre mot akt 2."),
+    jump(MG + "wilderness", INTER, "Hele Wilderness", "Map Genie, akt 1-overflaten."),
+    jump(MG + "wilderness?regions=1890", INTER, "Underdark", "Map Genie åpnet på Underdark-regionen."),
+    jump(MG + "wilderness?locationIds=57657", INTER, "Mountain Pass", "Map Genie åpnet på fjellpasset."),
    ],
    "pins": [
-    pin(5, 8, "Nautiloiden", "nautiloid"),
-    pin(5, 31, "Krasjstedet", "beach"),
-    pin(5, 59, "Overgrown Ruins", "crypt"),
-    pin(40, 31, "Emerald Grove", "grove"),
-    pin(40, 8, "Risen Road og Waukeen's Rest", "loot-road"),
-    pin(26, 20, "Karlach", "comp-karlach"),
-    pin(40, 59, "Blighted Village", "village"),
-    pin(76, 59, "Goblinleiren", "goblincamp"),
-    pin(76, 8, "Fjellpasset (mot akt 2)", "onward"),
-    pin(54, 82, "Underdark (mot akt 2)", "onward"),
-    pin(58, 26, "Smuggler's Ring", "loot-road", "loot", "loot-road:0"),
-    pin(66, 26, "Gloves of Thievery", "loot-road", "loot", "loot-road:1"),
-    pin(74, 28, "The Spellsparkler", "loot-road", "loot", "loot-road:2"),
-    pin(48, 52, "Moondrop Pendant (Owlbear-hulen)", "loot-road", "loot", "loot-road:3"),
+    pin(80, 74, "Nautiloiden", "nautiloid", frame="wild"),
+    pin(74, 82, "Krasjstedet", "beach", frame="wild"),
+    pin(90, 68, "Overgrown Ruins", "crypt", frame="wild"),
+    pin(78, 24, "Emerald Grove", "grove", frame="wild"),
+    pin(55, 12, "Risen Road og Waukeen's Rest", "loot-road", frame="wild"),
+    pin(42, 22, "Karlach", "comp-karlach", frame="wild"),
+    pin(48, 48, "Blighted Village", "village", frame="wild"),
+    pin(20, 48, "Goblinleiren", "goblincamp", frame="wild"),
+    pin(8, 14, "Fjellpasset (mot akt 2)", "onward", frame="wild"),
+    pin(46, 46, "Underdark (mot akt 2)", "onward", frame="under"),
+    pin(60, 20, "Smuggler's Ring", "loot-road", "loot", "loot-road:0", frame="wild"),
+    pin(16, 16, "Gloves of Thievery", "loot-road", "loot", "loot-road:1", frame="wild"),
+    pin(24, 18, "The Spellsparkler", "loot-road", "loot", "loot-road:2", frame="wild"),
+    pin(62, 40, "Moondrop Pendant (Owlbear-hulen)", "loot-road", "loot", "loot-road:3", frame="wild"),
    ]},
  ],
 }
