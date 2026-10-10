@@ -4,7 +4,7 @@ Statisk, selvstendig side – ingen eksterne ressurser, ingen byggesteg nødvend
 
 - `index.html` – selve guiden (forsiden for GitHub Pages / Netlify)
 - `bg3-nybegynnerguide.html` – identisk kopi
-- `build/` – kilde (innhold i `content.py`, mal i `template.html`). Regenerer med `python3 build/build.py`.
+- `build/` – kilde: `content_base.py` (opprinnelig innhold + Dark Urge-tekster), `content.py` (utvidelser: bard-spill, party-guider, utenfor kamp, nybegynnertips), mal i `template.html`. Regenerer med `python3 build/build.py`.
 
 ## Publisere
 - **GitHub Pages:** legg filene i et repo, Settings → Pages → «Deploy from a branch» → rotmappen.
