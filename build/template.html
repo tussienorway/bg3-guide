@@ -77,12 +77,16 @@ footer{max-width:1200px;margin:0 auto;padding:1rem 1rem 3rem;color:var(--muted);
 .search-results mark{background:#5c4a1e;color:var(--gold);border-radius:3px;padding:0 .12rem}
 .search-results .empty{color:var(--muted);padding:.45rem .55rem;font-size:.9rem}
 .vh{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.map-canvas{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#141018}
-.map-canvas svg{display:block;width:100%;height:auto}
-.map-pin:focus{outline:none}
-.map-pin:focus circle:last-of-type,.map-pin:focus-visible circle:nth-of-type(2){stroke:#fff;stroke-width:2}
 .map-note{color:var(--muted);font-size:.88rem;margin:.15rem 0 .45rem}
 .map-links{font-size:.9rem;margin:.35rem 0}
+.map-jumps{display:grid;gap:.55rem;margin:.35rem 0 .75rem}
+.map-jump{display:block;text-decoration:none;background:var(--panel2);border:1px solid var(--gold);border-radius:12px;padding:.7rem .85rem;color:var(--ink)}
+.map-jump:hover,.map-jump:focus{outline:2px solid var(--gold);outline-offset:1px}
+.map-jump .kicker{display:block;color:var(--gold);font-size:.75rem;letter-spacing:.03em;text-transform:uppercase}
+.map-jump .label{display:block;font:600 1.05rem Georgia,serif;color:var(--ink);margin:.1rem 0}
+.map-jump .note{display:block;color:var(--muted);font-size:.86rem}
+.map-jump .go{display:block;margin-top:.25rem;color:var(--gold);font-size:.88rem}
+@media (min-width:700px){.map-jumps{grid-template-columns:1fr 1fr}}
 .pinlist{list-style:none;margin:.6rem 0 0;padding:0;display:grid;grid-template-columns:1fr;gap:.3rem}
 .pinlist a{display:flex;gap:.55rem;align-items:center;text-decoration:none;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:.4rem .65rem;color:var(--ink);min-height:44px}
 .pinlist a:hover,.pinlist a:focus{border-color:var(--gold)}
@@ -269,138 +273,27 @@ function areaPins(m){
   if(state.pro==='du' && du().pins) pins=pins.concat(du().pins.filter(p=>p.map===m.id));
   return pins.filter(p=>!p.pro || proOk(p.pro)).filter(p=>!p.cls || clsOk(p.cls));
 }
-function pinMark(p, n){
-  const x=(p.x/100*400).toFixed(1), y=(p.y/100*260).toFixed(1);
-  const col=p.spoiler==='loot'?'#3d9a6a':p.spoiler==='story'?'#c78a3c':p.spoiler==='du'?'#d45d6c':'#e2c275';
-  const ink=p.spoiler==='loot'||p.spoiler==='du'?'#fff':'#1a1520';
-  return '<a class="map-pin" href="#'+esc(p.href)+'" aria-label="'+esc(n+'. '+p.label)+'">'+
-    '<circle cx="'+x+'" cy="'+y+'" r="16" fill="transparent"></circle>'+
-    '<circle cx="'+x+'" cy="'+y+'" r="9" fill="'+col+'" stroke="#1a1520" stroke-width="1.5"></circle>'+
-    '<text x="'+x+'" y="'+(+y+3.6).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="700" fill="'+ink+'" font-family="system-ui,sans-serif">'+n+'</text></a>';
-}
-function mapCaption(){return '<text x="12" y="252" fill="#a99fb6" font-size="11" font-family="system-ui,sans-serif">skjematisk, ikke målestokk</text>';}
-function mapArrow(x1,y1,x2,y2){
-  const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy)||1, ux=dx/len, uy=dy/len;
-  const hx=x2-ux*8, hy=y2-uy*8, px=-uy*4, py=ux*4;
-  return '<line x1="'+x1+'" y1="'+y1+'" x2="'+hx.toFixed(1)+'" y2="'+hy.toFixed(1)+'" stroke="#8d7340" stroke-width="1.5"></line>'+
-    '<path d="M'+x2+' '+y2+' L'+(hx+px).toFixed(1)+' '+(hy+py).toFixed(1)+' L'+(hx-px).toFixed(1)+' '+(hy-py).toFixed(1)+' Z" fill="#e2c275"></path>';
-}
-function compassAt(x,y){
-  return '<g transform="translate('+x+' '+y+')" aria-hidden="true"><circle r="13" fill="#1a1520" stroke="#e2c275" stroke-width="1"></circle>'+
-    '<path d="M0 -9 L3 2 L0 0 L-3 2 Z" fill="#e2c275"></path>'+
-    '<text y="-16" text-anchor="middle" fill="#e2c275" font-size="9" font-family="system-ui,sans-serif">N</text></g>';
-}
-const TERRAIN={
- 'map-nautiloid':function(){return '<rect width="400" height="260" fill="#141018"></rect>'+
-  '<text x="200" y="28" text-anchor="middle" fill="#8d7340" font-size="12" font-family="system-ui,sans-serif">Avernus · én vei mot roret</text>'+
-  '<path d="M28 150 C36 78 100 58 150 92 C190 52 250 48 300 78 C345 52 385 90 372 140 C360 186 300 200 240 186 C180 208 110 198 70 176 C40 190 18 176 28 150 Z" fill="#2a2034" stroke="#e2c275" stroke-width="2"></path>'+
-  '<path d="M48 168 C18 176 8 210 30 228" fill="none" stroke="#6a4a78" stroke-width="5" stroke-linecap="round"></path>'+
-  '<path d="M40 156 C8 150 4 186 22 198" fill="none" stroke="#6a4a78" stroke-width="4" stroke-linecap="round"></path>'+
-  '<path d="M110 100 L102 176 M175 86 L168 186 M245 80 L250 184 M315 90 L322 170" fill="none" stroke="#8d7340" stroke-width="1" opacity="0.75"></path>'+
-  '<text x="78" y="145" text-anchor="middle" fill="#a99fb6" font-size="11" font-family="system-ui,sans-serif">Kapsel</text>'+
-  '<text x="142" y="145" text-anchor="middle" fill="#a99fb6" font-size="11" font-family="system-ui,sans-serif">Kirurgi</text>'+
-  '<text x="210" y="142" text-anchor="middle" fill="#a99fb6" font-size="11" font-family="system-ui,sans-serif">Imper</text>'+
-  '<text x="282" y="138" text-anchor="middle" fill="#a99fb6" font-size="11" font-family="system-ui,sans-serif">Kapsler</text>'+
-  '<text x="348" y="142" text-anchor="middle" fill="#e2c275" font-size="12" font-family="Georgia,serif">Ror</text>'+mapCaption();},
- 'map-beach':function(){return '<rect width="400" height="260" fill="#141018"></rect>'+
-  '<rect x="0" y="168" width="400" height="92" fill="#1b3348"></rect>'+
-  '<path d="M0 168 C80 150 140 180 220 162 C300 146 350 172 400 158 L400 260 L0 260 Z" fill="#1b3348"></path>'+
-  '<path d="M0 168 C80 150 140 180 220 162 C300 146 350 172 400 158 L400 188 C340 176 260 196 180 180 C100 166 40 190 0 176 Z" fill="#4a3b2a"></path>'+
-  '<path d="M0 0 H400 V118 C320 138 240 96 150 118 C80 136 30 96 0 114 Z" fill="#2c2636"></path>'+
-  '<path d="M78 148 C98 108 140 102 158 132 C168 154 142 170 112 162 C84 172 66 162 78 148 Z" fill="#3a2a38" stroke="#e2c275" stroke-width="1.5"></path>'+
-  '<text x="118" y="146" text-anchor="middle" fill="#e2c275" font-size="11" font-family="Georgia,serif">vrak</text>'+
-  '<text x="250" y="52" text-anchor="middle" fill="#a99fb6" font-size="11" font-family="system-ui,sans-serif">klipper · mot lunden</text>'+
-  '<path d="M250 78 L250 62 M250 62 L243 70 M250 62 L257 70" fill="none" stroke="#e2c275" stroke-width="1.5"></path>'+
-  '<text x="300" y="214" text-anchor="middle" fill="#9bb4c8" font-size="11" font-family="system-ui,sans-serif">elv</text>'+
-  compassAt(368,36)+mapCaption();},
- 'map-crypt':function(){return '<rect width="400" height="260" fill="#141018"></rect>'+
-  '<rect x="24" y="24" width="352" height="96" rx="10" fill="#2c2636" stroke="#e2c275" stroke-width="1.5"></rect>'+
-  '<text x="200" y="48" text-anchor="middle" fill="#e2c275" font-size="13" font-family="Georgia,serif">Overgrown Ruins · kapell</text>'+
-  '<path d="M70 70 h40 v28 h-40 z M120 64 h26 v34 h-26 z M168 72 h50 v24 h-50 z" fill="none" stroke="#8d7340" stroke-width="1.5"></path>'+
-  '<path d="M190 120 v22" stroke="#e2c275" stroke-width="2"></path>'+
-  '<text x="206" y="134" fill="#a99fb6" font-size="10" font-family="system-ui,sans-serif">ned</text>'+
-  '<rect x="24" y="142" width="352" height="96" rx="10" fill="#221c28" stroke="#8d7340" stroke-width="1.5"></rect>'+
-  '<text x="120" y="164" fill="#e2c275" font-size="13" font-family="Georgia,serif">Dank Crypt</text>'+
-  '<path d="M60 196 h70 M60 196 v18 M96 206 h28" fill="none" stroke="#6d5b38" stroke-width="3"></path>'+
-  '<text x="78" y="222" fill="#a99fb6" font-size="10" font-family="system-ui,sans-serif">feller</text>'+
-  '<circle cx="300" cy="198" r="16" fill="none" stroke="#e2c275"></circle>'+
-  '<text x="300" y="202" text-anchor="middle" fill="#e2c275" font-size="10" font-family="system-ui,sans-serif">Jergal</text>'+mapCaption();},
- 'map-grove':function(){return '<rect width="400" height="260" fill="#141018"></rect>'+compassAt(368,28)+
-  '<path d="M40 78 C40 36 360 36 360 78 L360 196 C300 226 100 226 40 196 Z" fill="#243328" stroke="#e2c275" stroke-width="1.5"></path>'+
-  '<rect x="150" y="198" width="100" height="26" fill="#4a3b2a" stroke="#e2c275"></rect>'+
-  '<text x="200" y="215" text-anchor="middle" fill="#ece6f2" font-size="11" font-family="system-ui,sans-serif">port</text>'+
-  '<ellipse cx="150" cy="140" rx="52" ry="32" fill="#2c2636" stroke="#8d7340"></ellipse>'+
-  '<text x="150" y="144" text-anchor="middle" fill="#ece6f2" font-size="12" font-family="Georgia,serif">Hollow</text>'+
-  '<ellipse cx="196" cy="78" rx="48" ry="24" fill="#1b3348" stroke="#e2c275"></ellipse>'+
-  '<text x="196" y="82" text-anchor="middle" fill="#ece6f2" font-size="11" font-family="Georgia,serif">Sacred Pool</text>'+
-  '<rect x="268" y="58" width="72" height="46" rx="6" fill="#2c2636" stroke="#e2c275"></rect>'+
-  '<text x="304" y="85" text-anchor="middle" fill="#ece6f2" font-size="11" font-family="system-ui,sans-serif">indre</text>'+
-  '<text x="78" y="160" text-anchor="middle" fill="#a99fb6" font-size="10" font-family="system-ui,sans-serif">skjulested</text>'+mapCaption();},
- 'map-village':function(){return '<rect width="400" height="260" fill="#141018"></rect>'+compassAt(368,28)+
-  '<rect x="70" y="44" width="230" height="176" rx="4" fill="#2c2636" stroke="#e2c275" stroke-width="2"></rect>'+
-  '<rect x="155" y="198" width="60" height="24" fill="#141018" stroke="#e2c275"></rect>'+
-  '<text x="185" y="214" text-anchor="middle" fill="#e2c275" font-size="10" font-family="system-ui,sans-serif">sørport</text>'+
-  '<circle cx="300" cy="112" r="28" fill="#3a3144" stroke="#e2c275"></circle>'+
-  '<path d="M300 84 v-14 M288 98 h24" stroke="#e2c275" stroke-width="1.5"></path>'+
-  '<text x="300" y="118" text-anchor="middle" fill="#ece6f2" font-size="10" font-family="system-ui,sans-serif">mølle</text>'+
-  '<rect x="96" y="68" width="54" height="36" fill="#3a3144" stroke="#8d7340"></rect>'+
-  '<text x="123" y="90" text-anchor="middle" fill="#a99fb6" font-size="10" font-family="system-ui,sans-serif">smie</text>'+
-  '<rect x="160" y="116" width="36" height="22" fill="#4a3b2a" stroke="#8d7340"></rect>'+
-  '<text x="178" y="156" text-anchor="middle" fill="#a99fb6" font-size="10" font-family="system-ui,sans-serif">torg</text>'+
-  '<text x="185" y="34" text-anchor="middle" fill="#a99fb6" font-size="11" font-family="system-ui,sans-serif">mot Risen Road</text>'+mapCaption();},
- 'map-goblin':function(){return '<rect width="400" height="260" fill="#141018"></rect>'+
-  '<rect x="20" y="50" width="150" height="160" rx="8" fill="#243328" stroke="#8d7340"></rect>'+
-  '<text x="95" y="76" text-anchor="middle" fill="#e2c275" font-size="13" font-family="Georgia,serif">Ytre leir</text>'+
-  '<path d="M170 124 h48" stroke="#e2c275" stroke-width="3"></path>'+
-  '<text x="194" y="114" text-anchor="middle" fill="#a99fb6" font-size="10" font-family="system-ui,sans-serif">bro</text>'+
-  '<rect x="220" y="36" width="164" height="190" rx="6" fill="#2c2636" stroke="#e2c275" stroke-width="2"></rect>'+
-  '<text x="302" y="58" text-anchor="middle" fill="#e2c275" font-size="13" font-family="Georgia,serif">Shattered Sanctum</text>'+
-  '<path d="M246 86 h120 M246 150 h120" stroke="#8d7340"></path>'+
-  '<text x="300" y="118" text-anchor="middle" fill="#a99fb6" font-size="11" font-family="system-ui,sans-serif">Gut</text>'+
-  '<text x="300" y="176" text-anchor="middle" fill="#a99fb6" font-size="11" font-family="system-ui,sans-serif">Ragzlin</text>'+
-  '<text x="300" y="206" text-anchor="middle" fill="#a99fb6" font-size="11" font-family="system-ui,sans-serif">Minthara</text>'+mapCaption();},
- 'map-overview':function(){
-  function box(x,y,w,h,t,s){
-    return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="8" fill="#2c2636" stroke="#e2c275"></rect>'+
-      '<text x="'+(x+w/2)+'" y="'+(y+16)+'" text-anchor="middle" fill="#ece6f2" font-size="11" font-family="Georgia,serif">'+t+'</text>'+
-      (s?'<text x="'+(x+w/2)+'" y="'+(y+30)+'" text-anchor="middle" fill="#a99fb6" font-size="9" font-family="system-ui,sans-serif">'+s+'</text>':'');
-  }
-  return '<rect width="400" height="260" fill="#141018"></rect>'+
-    box(18,18,112,40,'Nautiloid','prolog')+
-    box(18,78,112,40,'Strand','krasjsted')+
-    box(18,150,112,40,'Ruiner','krypt')+
-    box(156,78,116,40,'Lund','Emerald Grove')+
-    box(156,18,116,40,'Risen Road','Waukeen')+
-    box(156,150,116,40,'Landsby','Blighted')+
-    box(300,150,86,40,'Goblinleir','Sanctum')+
-    box(300,18,86,40,'Fjellpass','mot akt 2')+
-    box(214,210,120,34,'Underdark','mot akt 2')+
-    mapArrow(74,58,74,78)+mapArrow(130,98,156,98)+mapArrow(74,118,74,150)+
-    mapArrow(214,78,214,58)+mapArrow(214,118,214,150)+mapArrow(272,170,300,170)+
-    mapArrow(272,38,300,38)+mapArrow(343,150,343,58)+mapArrow(250,190,250,210)+
-    mapArrow(330,190,290,210)+mapCaption();
- }
-};
-function extLinks(links){
-  return (links||[]).map(l=>'<a href="'+esc(l.href)+'" rel="noopener noreferrer" target="_blank">'+esc(l.label)+'</a>').join(' · ');
+function mapJump(j){
+  return '<a class="map-jump" href="'+esc(j.href)+'" rel="noopener noreferrer" target="_blank">'+
+    '<span class="kicker">'+esc(j.kicker)+'</span>'+
+    '<span class="label">'+esc(j.label)+'</span>'+
+    (j.note?'<span class="note">'+esc(j.note)+'</span>':'')+
+    '<span class="go">Åpne i ny fane</span></a>';
 }
 function renderMaps(){
   const M=DATA.maps;
   if(!M){$('maps').innerHTML='';$('navMaps').innerHTML='';return;}
   let html='<section class="node" id="kart"><div class="act">Kart</div><h3>'+esc(M.title)+'</h3><p class="summary">'+esc(M.summary)+'</p>'+
-    '<p class="map-links">Nøyaktige kart: '+extLinks(M.links)+'. Ingen kartbilder lastes inn på denne siden.</p></section>';
+    '<div class="map-jumps">'+(M.jumps||[]).map(mapJump).join('')+'</div></section>';
   const nav=[];
   M.areas.forEach(m=>{
-    const all=areaPins(m), shown=all.filter(pinShown);
-    const svg='<svg viewBox="0 0 400 260" role="img" aria-label="'+esc(m.title)+', skjematisk kart, ikke målestokk">'+
-      (TERRAIN[m.id]?TERRAIN[m.id]():'<rect width="400" height="260" fill="#141018"></rect>')+
-      shown.map((p,i)=>pinMark(p,i+1)).join('')+'</svg>';
+    const shown=areaPins(m).filter(pinShown);
     const list=shown.length?('<ol class="pinlist">'+shown.map((p,i)=>'<li><a class="'+(p.spoiler||'')+'" href="#'+esc(p.href)+'"><span class="n">'+
       (i+1)+'</span><span>'+esc(p.label)+'</span></a></li>').join('')+'</ol>'):
-      '<p class="map-note">Ingen nåler å vise med de spoilerbryterne som er på.</p>';
-    html+='<section class="node" id="'+m.id+'"><div class="act">Kart</div><h3>'+esc(m.title)+'</h3><p class="map-note">'+esc(m.blurb)+' Skjematisk, ikke målestokk.</p>'+
-      '<div class="map-canvas">'+svg+'</div>'+list+
-      '<p class="map-links">'+extLinks(m.links)+'</p></section>';
+      '<p class="map-note">Ingen steder å vise med de spoilerbryterne som er på.</p>';
+    html+='<section class="node" id="'+m.id+'"><div class="act">Kart</div><h3>'+esc(m.title)+'</h3><p class="map-note">'+esc(m.blurb)+'</p>'+
+      '<div class="map-jumps">'+(m.jumps||[]).map(mapJump).join('')+'</div>'+
+      '<h4>Steder i guiden</h4>'+list+'</section>';
     nav.push('<li><a href="#'+m.id+'">'+esc(m.title)+'</a></li>');
   });
   $('maps').innerHTML=html;
